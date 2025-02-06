@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700;800;900&display=swap');
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  color: #1d1c1c;
+}
+
+.logo label {
+  cursor: pointer;
+}
+
+.navLinks {
+  display: flex;
+  gap: 40px;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.navLinks a:hover {
+  transform: scale(1.1);
+  color: #4b70e2;
+}
+
+.navLinks a.active {
+  color: #4b70e2;
+  font-weight: 700;
+}
+
+.searchBar {
+  position: relative;
+}
+
+.searchBar input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.burgerMenu {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.burgerMenu .line {
+  width: 25px;
+  height: 3px;
+  background-color: #333;
+  margin: 4px 0;
+}
+
+.burgerMenu .line.open:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.burgerMenu .line.open:nth-child(2) {
+  opacity: 0;
+}
+
+.burgerMenu .line.open:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+.cross {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cross .line {
+  width: 25px;
+  height: 3px;
+  background-color: #333;
+  margin: 4px 0;
+}
+
+.cross .line:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.cross .line:nth-child(2) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+@media (max-width: 800px) {
+
+  .navbar{
+    width: 70%;
+    display: flex;
+
+    justify-content: space-between;
+   
+  }
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-80%);
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 20;
+  }
+
+  .logo label{
+    font-size: 13px;
+    
+  }
+  .searchBar{
+    width: 20%;
+  }
+  
+
+
+  .navLinks.open {
+    display: flex;
+    left: 65%;
+  }
+
+  .burgerMenu {
+    display: flex;
+    position: absolute;
+    left: 55%;
+    transform: translateX(-50%);
+  }
+
+  .cross {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+  }
+}
+
+

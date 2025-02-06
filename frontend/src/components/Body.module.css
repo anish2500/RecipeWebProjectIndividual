@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Varela+Round&display=swap');
+
+
+/* hero.module.css */
+.hero {
+  position: relative;
+  text-align: center;
+  color: white;
+  padding-top: 20px;
+}
+
+.heroImage {
+  width: 70%;
+  border-radius: 10px;
+}
+
+.heroText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-family: "Poppins", sans-serif;
+  transform: translate(-50%, -50%);
+}
+
+.heroTitle {
+  font-size: 48px;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.heroDescription {
+  font-size: 18px;
+  margin: 10px 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.heroButton {
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.heroButtonHover:hover {
+  background-color: #365bb5;
+  transform: scale(1.05);
+}
+
+/* section.module.css */
+.section {
+  padding: 40px 20px;
+  background-color: #fff;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.sectionTitle {
+  font-family: "Poppins", sans-serif;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* cuisinesAndRecipes.module.css */
+.cuisines, .recipes {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cuisine, .recipe {
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+}
+
+.cuisineIcon, .recipeImage {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.cuisineDescription, .recipeDescription {
+  margin: 10px 0;
+  font-size: 16px;
+  font-family: "Poppins", sans-serif;
+}
+
+.recipeDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recipeDetailsSpan {
+  font-size: 14px;
+  color: #777;
+}
+
+.recipeRating {
+  color: #f39c12;
+}
+
+.recipeImage {
+  height: 80%;
+  width: 100%;
+}
+
+/* recipeOfTheDay.module.css */
+.recipeOfTheDay {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.recipeOfTheDayImage {
+  width: 50%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.recipeOfTheDayContent {
+  flex: 1;
+}
+
+.recipeOfTheDayTitle {
+  font-size: 24px;
+  margin: 0;
+}
+
+.recipeOfTheDayDescription {
+  font-size: 16px;
+  font-family: "Poppins", sans-serif;
+  margin: 10px 0;
+}
+
+.recipeOfTheDayDetails {
+  display: flex;
+  font-family: "Poppins", sans-serif;
+  gap: 10px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* viewRecipeButton.module.css */
+.viewRecipeButton {
+  margin-top: 20px;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  background-color: #0974c7;
+  padding: 8px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 18px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.viewRecipeButton:hover {
+  background-color: #045ca0;
+  transform: scale(1.05);
+  color: white;
+}
+
+/* responsive.module.css */
+@media (max-width: 768px) {
+  .heroText h1 {
+    font-size: 32px;
+  }
+
+  .heroText p {
+    font-size: 16px;
+  }
+
+  .recipeOfTheDay {
+    flex-direction: column;
+  }
+
+  .recipeOfTheDayImage {
+    width: 100%;
+  }
+}
