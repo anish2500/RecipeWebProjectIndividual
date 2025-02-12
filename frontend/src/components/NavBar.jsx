@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import styles from "./NavBar.module.css";
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const NavBar = () => {
+const NavBar = ({ onSignOut }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onSignOut(); // Call the logout function from props
+    navigate('/signin'); // Navigate to signin page
+    setIsMenuOpen(false); // Close the mobile menu if open
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -13,7 +20,7 @@ const NavBar = () => {
   const handleResize = () => {
     setIsMobile(window.innerWidth < 800);
     if (window.innerWidth >= 800) {
-      setIsMenuOpen(false); // Close menu if resizing back to desktop
+      setIsMenuOpen(false);
     }
   };
 
@@ -31,15 +38,26 @@ const NavBar = () => {
       </div>
       {!isMobile || isMenuOpen ? (
         <div className={`${styles.navLinks} ${isMenuOpen ? styles.open : ""}`}>
-          <Link to = "/Body">Home</Link>
-          <Link to = "/AboutUs">About Us</Link>
-          <Link to="/Contacts">Contacts</Link> 
-          <Link to ="/addRecipe" >Add Recipe</Link>
+          <div className={styles.mainLinks}>
+            <Link to="/Body">Home</Link>
+            <Link to="/AboutUs">About Us</Link>
+            <Link to="/Contacts">Contacts</Link> 
+            <Link to="/addRecipe">Add Recipe</Link>
+            <Link to="/recipes">Recipes</Link>
+          </div>
+          <div className={styles.rightControls}>
+            <button 
+              onClick={handleLogout}
+              className={styles.logoutButton}
+            >
+              Logout
+            </button>
+            <div className={styles.searchBar}>
+              <input placeholder="Search recipes..." type="text" />
+            </div>
+          </div>
         </div>
       ) : null}
-      <div className={styles.searchBar}>
-        <input placeholder="Search recipes..." type="text" />
-      </div>
       <div className={styles.burgerMenu} onClick={toggleMenu}>
         {!isMenuOpen ? (
           <>
@@ -48,10 +66,11 @@ const NavBar = () => {
             <div className={styles.line}></div>
           </>
         ) : (
-          <div className={styles.cross}>
-            <div className={styles.line}></div>
-            <div className={styles.line}></div>
-          </div>
+          <>
+            <div className={`${styles.line} ${styles.open}`}></div>
+            <div className={`${styles.line} ${styles.open}`}></div>
+            <div className={`${styles.line} ${styles.open}`}></div>
+          </>
         )}
       </div>
     </nav>

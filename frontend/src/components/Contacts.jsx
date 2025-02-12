@@ -1,8 +1,14 @@
 import React from "react";
 import styles from "./Contacts.module.css"; // Assuming your updated CSS file is named Contact.module.css
 
+import NavBar from './NavBar';
+import Footer from './Footer';
+
 const Contacts = () => {
   return (
+
+    <div className="whole">
+      <NavBar/>
     <div className={styles.container}>
       <div className={styles.contactSection}>
         <div className={styles.contactInfo}>
@@ -36,6 +42,8 @@ const Contacts = () => {
           </form>
         </div>
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 };

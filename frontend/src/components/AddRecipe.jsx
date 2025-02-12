@@ -1,5 +1,7 @@
 import { useState } from "react";
 import styles from "./AddRecipe.module.css";
+import NavBar from './NavBar';
+import Footer from './Footer';
 
 export default function AddRecipe() {
   const [steps, setSteps] = useState(["Step 1"]);
@@ -22,7 +24,15 @@ export default function AddRecipe() {
   };
 
   return (
+  
+   
+    <div className="whole">
+       <NavBar/>
+
+      
+   
     <div className={styles.container}>
+     
       <div className={styles.content}>
         <h1>Add Recipe</h1>
         <form>
@@ -94,5 +104,10 @@ export default function AddRecipe() {
         </form>
       </div>
     </div>
+    
+
+    <Footer/>
+    </div>
+  
   );
 }

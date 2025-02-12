@@ -1,94 +1,59 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useState, Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Body from './components/Body';
 import ViewRecipe from './components/ViewRecipe';
-import NavBar from './components/NavBar';
-import Footer from './components/Footer';
 import AddRecipe from './components/AddRecipe';
 import Contacts from './components/Contacts';
 import AboutUs from './components/AboutUs';
+import ProtectedRoute from '../ProtectedRoute.jsx';
 
-
+// Lazy load the SignIn component
+const Signin = lazy(() => import('./components/Signin'));
 
 const App = () => {
+  // State to manage authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Function to handle successful sign-in
+  const handleSignIn = () => {
+    setIsAuthenticated(true);
+  };
+
+  // Function to handle sign-out
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
+
   return (
     <Router>
-      <NavBar/>
       <Routes>
-        <Route path="/Body" element={<Body />} />
-        <Route path="/view-recipe" element={<ViewRecipe />} />
-        <Route path="/addRecipe" element={<AddRecipe />} />
-        <Route path="/Contacts" element={<Contacts />} />
-        <Route path="/AboutUs" element={<AboutUs />} />
+        {/* Public Routes */}
+        <Route path="/signin" element={
+          <Suspense fallback={<div>Loading...</div>}>
+            <Signin onSignIn={handleSignIn} />
+          </Suspense>
+        } />
 
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
+          <Route path="/body" element={<Body onSignOut={handleSignOut} />} />
+          <Route path="/view-recipe" element={<ViewRecipe />} />
+          <Route path="/addRecipe" element={<AddRecipe />} />
+          <Route path="/Contacts" element={<Contacts />} />
+          <Route path="/AboutUs" element={<AboutUs />} />
+        </Route>
 
-        
-
-
+        {/* Redirect unauthenticated users to signin */}
+        <Route path="/" element={
+          isAuthenticated ? <Navigate to="/body" replace /> : <Navigate to="/signin" replace />
+        } />
+        <Route path="*" element={
+          isAuthenticated ? <Navigate to="/body" replace /> : <Navigate to="/signin" replace />
+        } />
       </Routes>
-      <Footer/>
     </Router>
   );
 };
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-// import React from 'react';
-// import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import NavBar from './components/NavBar';
-// import Body from './components/Body';
-// import Footer from './components/Footer';
-
-// import Contact from './components/Contact'; // Create this component
-// import AddRecipe from './components/AddRecipe'; // Create this component
-
-// function App() {
-//   return (
-//     <Router>
-//       <div className="App">
-//         <NavBar />
-//         <Routes>
-//           <Route path="/" element={<Body />} />
-
-//           <Route path="/contact" element={<Contact />} />
-
-//         </Routes>
-//         <Footer />
-//       </div>
-//     </Router>
-//   );
-// }
-
-// export default App;
-
-
-// import React from 'react';
-
-// // import ViewRecipe from './components/ViewRecipe';
-// // import './App.css';
-
-// // import Footer from './components/Footer';
-// // import NavBar from './components/NavBar';
-
-// import AddRecipe from './components/addRecipe';
-
-
-// function App() {
-//   return (
-//     <div className="App">
-//     <AddRecipe/>
-//     </div>
-//   );
-// }
-// export default App;

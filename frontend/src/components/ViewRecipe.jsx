@@ -1,11 +1,15 @@
 // React Component: ViewRecipe.js
 import React from 'react';
 import styles from './ViewRecipe.module.css';
+import NavBar from './NavBar';
+import Footer from './Footer';
 
 const ViewRecipe = () => {
     return (
         
-
+        <div className="whole">
+            <NavBar/>
+       
         
         <div className={styles.container}>
             <div className={styles.header}>
@@ -59,6 +63,8 @@ const ViewRecipe = () => {
                     <li>Serve the daal hot with steamed rice. Garnish with fresh coriander. Optionally, add a side of pickles and steamed vegetables.</li>
                 </ol>
             </div>
+        </div>
+        <Footer/>
         </div>
         
     );

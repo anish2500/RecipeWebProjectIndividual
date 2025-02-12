@@ -1,11 +1,12 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";  
 import styles from './Body.module.css'; 
+import NavBar from './NavBar';
+import Footer from './Footer';
 
 
 
-const Body = () => {
+const Body = ({ onSignOut }) => {
   const navigate = useNavigate(); 
 
   const handleViewRecipeClick = () => {
@@ -25,6 +26,14 @@ const Body = () => {
 
   return (
     <>
+
+<div className="wrapper">
+
+    <div className="whole">
+      <NavBar onSignOut={onSignOut}/>
+
+      
+    
       <div className={styles.hero}>
         <img className={styles.heroImage} src="./src/assets/food.jpg" alt="food" />
        
@@ -113,10 +122,13 @@ const Body = () => {
           </div>
         </div>
       </div>
+      
+
+      <Footer/>
+      </div>
+      </div>
     </>
   );
 };
 
 export default Body;
-
-

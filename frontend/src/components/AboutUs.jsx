@@ -1,9 +1,14 @@
 import React from "react";
 import styles from "./AboutUs.module.css";
 import NavBar from './NavBar';
+import Footer from './Footer';
 
 const AboutUs = () => {
   return (
+
+    <div className="whole">
+      <NavBar/>
+    
     <div className={styles.page}>
      
 
@@ -39,6 +44,8 @@ const AboutUs = () => {
           </a>
         </div>
       </div>
+    </div>
+   <Footer/>
     </div>
   );
 };

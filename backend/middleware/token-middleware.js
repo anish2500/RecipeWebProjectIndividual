@@ -4,13 +4,16 @@ dotenv.config();
 
 // Middleware to verify JWT token
 export function authenticateToken(req, res, next) {
+
+  const token = req.header("Authorization")?.split(" ")[1];
   // Skip token verification for the login route
-  if (req.path === "/api/auth/login") {
+  if (req.path === "/api/auth/login" || req.path === "/api/user" || req.path === "/api/admin") {
+    console.log(`Skipping token verification for ${req.path}`); // Debugging: Log skipped routes
     return next();
   }
 
   // Get token from Authorization header
-  const token = req.header("Authorization")?.split(" ")[1];
+
 
   if (!token) {
     return res

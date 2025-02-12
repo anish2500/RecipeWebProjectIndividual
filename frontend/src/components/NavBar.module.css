@@ -16,6 +16,7 @@
   font-weight: 700;
   font-family: "Poppins", sans-serif;
   color: #1d1c1c;
+  flex: 0 0 auto;
 }
 
 .logo label {
@@ -24,7 +25,23 @@
 
 .navLinks {
   display: flex;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.mainLinks {
+  display: flex;
   gap: 40px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 .navLinks a {
@@ -47,25 +64,45 @@
 
 .searchBar {
   position: relative;
+  margin-left: 20px;
 }
 
 .searchBar input {
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+.logoutButton {
+  background-color: #ff4757;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.logoutButton:hover {
+  background-color: #ff6b81;
 }
 
 .burgerMenu {
   display: none;
   flex-direction: column;
+  gap: 4px;
   cursor: pointer;
+  padding: 5px;
+  z-index: 40;
 }
 
-.burgerMenu .line {
+.line {
   width: 25px;
   height: 3px;
   background-color: #333;
-  margin: 4px 0;
+  transition: all 0.3s ease;
 }
 
 .burgerMenu .line.open:nth-child(1) {
@@ -104,58 +141,74 @@
 }
 
 @media (max-width: 800px) {
-
-  .navbar{
-    width: 70%;
-    display: flex;
-
-    justify-content: space-between;
-   
+  .navbar {
+    padding: 10px 20px;
+    position: relative;
+    justify-content: center;
   }
-  .navLinks {
-    display: none;
-    flex-direction: column;
-    gap: 20px;
+
+  .logo {
     position: absolute;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-80%);
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 20;
+    left: 20px;
   }
 
-  .logo label{
-    font-size: 13px;
-    
-  }
-  .searchBar{
-    width: 20%;
-  }
-  
-
-
-  .navLinks.open {
-    display: flex;
-    left: 65%;
+  .logo label {
+    font-size: 18px;
   }
 
   .burgerMenu {
     display: flex;
-    position: absolute;
-    left: 55%;
-    transform: translateX(-50%);
+    position: relative;
+    margin: 0 auto;
   }
 
-  .cross {
-    display: flex;
+  .navLinks {
+    display: none;
+    flex-direction: column;
     position: absolute;
+    top: 100%;
     left: 50%;
     transform: translateX(-50%);
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 30;
+    width: 70%;
+    max-width: 300px;
+  }
+
+  .navLinks.open {
+    display: flex;
+  }
+
+  .mainLinks {
+    position: static;
+    transform: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .rightControls {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 20px;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .searchBar {
+    width: 90%;
+    margin-left: 0;
+  }
+
+  .searchBar input {
+    width: 100%;
+  }
+
+  .logoutButton {
+    width: auto;
+    min-width: 120px;
   }
 }
-
-
