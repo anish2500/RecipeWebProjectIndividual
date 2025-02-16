@@ -52,29 +52,27 @@ export default function AddRecipe() {
 
     try {
       const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
-      console.log("Raw API Response:", response); // Debug log for entire response
+      console.log("Raw API Response:", response); 
 
       if (response.data && response.data.data) {
         const recipe = response.data.data;
-        console.log("Recipe data:", recipe); // Debug log for recipe data
+        console.log("Recipe data:", recipe); 
 
-        // Update form fields with recipe data
         setTitle(recipe.title || '');
         setDescription(recipe.description || '');
         
-        // Handle ingredients - ensure it's an array
+        
         const recipeIngredients = Array.isArray(recipe.ingredients) 
           ? recipe.ingredients 
           : [{ ingredient: "", alternative: "" }];
         setIngredients(recipeIngredients);
         
-        // Handle steps - ensure it's an array
+       
         const recipeSteps = Array.isArray(recipe.steps) 
           ? recipe.steps 
           : [""];
         setSteps(recipeSteps);
 
-        // Handle categories - ensure it's an array
         const recipeCategories = Array.isArray(recipe.categories) 
           ? recipe.categories 
           : [];
@@ -106,6 +104,12 @@ export default function AddRecipe() {
     const newIngredients = [...ingredients];
     newIngredients[index][field] = value;
     setIngredients(newIngredients);
+  };
+
+  const handleStepChange = (index, value) => {
+    const newSteps = [...steps];
+    newSteps[index] = value;
+    setSteps(newSteps);
   };
 
   const handleSubmit = async (e) => {
@@ -196,6 +200,38 @@ export default function AddRecipe() {
     } catch (error) {
       console.error('Error updating recipe:', error);
       toast.error(error.response?.data?.error || 'Failed to update recipe. Please try again.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!recipeId.trim()) {
+      toast.error("Please search for a recipe first!");
+      return;
+    }
+
+    if (window.confirm("Are you sure you want to delete this recipe?")) {
+      try {
+        const response = await axios.delete(`http://localhost:5000/api/recipes/${recipeId}`);
+        
+        if (response.status === 200) {
+          toast.success('Recipe deleted successfully!');
+          // Reset all form fields
+          setRecipeId("");
+          setTitle("");
+          setDescription("");
+          setIngredients([{ ingredient: "", alternative: "" }]);
+          setSteps([""]);
+          setCategories([]);
+          setImage(null);
+          
+          // Reset file input
+          const fileInput = document.getElementById('recipe-image');
+          if (fileInput) fileInput.value = '';
+        }
+      } catch (error) {
+        console.error('Error deleting recipe:', error);
+        toast.error(error.response?.data?.error || 'Failed to delete recipe. Please try again.');
+      }
     }
   };
 
@@ -326,7 +362,7 @@ export default function AddRecipe() {
                     name="step" 
                     placeholder={`Step ${index + 1}`}
                     value={step}
-                    onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
+                    onChange={(e) => handleStepChange(index, e.target.value)}
                   />
                 ))}
               </div>
@@ -343,7 +379,13 @@ export default function AddRecipe() {
               >
                 Update Recipe
               </button>
-              <button type="button" className={styles.deleteBtn}>Delete Recipe</button>
+              <button 
+                type="button" 
+                className={styles.deleteBtn} 
+                onClick={handleDelete}
+              >
+                Delete Recipe
+              </button>
             </div>
           </form>
         </div>
