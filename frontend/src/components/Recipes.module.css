@@ -1,0 +1,14 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.contentWrap {
+  flex: 1;
+}
+
+.mainContent {
+  padding: 20px;
+  /* Add more styles as needed for future content */
+}

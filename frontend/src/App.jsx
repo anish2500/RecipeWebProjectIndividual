@@ -6,6 +6,7 @@ import AddRecipe from './components/AddRecipe';
 import Contacts from './components/Contacts';
 import AboutUs from './components/AboutUs';
 import ProtectedRoute from '../ProtectedRoute.jsx';
+import Recipes from './components/Recipes';
 
 // Lazy load the SignIn component
 const Signin = lazy(() => import('./components/Signin'));
@@ -42,6 +43,7 @@ const App = () => {
           <Route path="/addRecipe" element={<AddRecipe />} />
           <Route path="/Contacts" element={<Contacts />} />
           <Route path="/AboutUs" element={<AboutUs />} />
+          <Route path="/recipes" element={<Recipes />} />
         </Route>
 
         {/* Redirect unauthenticated users to signin */}

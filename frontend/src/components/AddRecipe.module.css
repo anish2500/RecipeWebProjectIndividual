@@ -145,3 +145,40 @@ h1 {
 .removeCategory:hover {
   color: #c82333;
 }
+
+.searchContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.searchContainer input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-family: "Poppins", sans-serif;
+}
+
+.searchBtn {
+  font-family: "Poppins", sans-serif;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #6c757d;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.searchBtn:hover {
+  background-color: #5a6268;
+}
+
+.searchContainer input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
