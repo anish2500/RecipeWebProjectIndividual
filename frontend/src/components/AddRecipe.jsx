@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function AddRecipe() {
   const [steps, setSteps] = useState(["Step 1"]);
   const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [recipeId, setRecipeId] = useState("");
   const [title, setTitle] = useState("");
@@ -16,14 +17,23 @@ export default function AddRecipe() {
   const [ingredients, setIngredients] = useState([{ ingredient: "", alternative: "" }]);
   const [image, setImage] = useState(null);
 
+  // Predefined categories
+  const availableCategories = [
+    "Nepali",
+    "Indian",
+    "Italian",
+    "Korean",
+    "American"
+  ];
+
   const addStep = () => {
     setSteps([...steps, `Step ${steps.length + 1}`]);
   };
 
   const addCategory = () => {
-    if (newCategory.trim()) {
-      setCategories([...categories, newCategory.trim()]);
-      setNewCategory("");
+    if (selectedCategory && !categories.includes(selectedCategory)) {
+      setCategories([...categories, selectedCategory]);
+      setSelectedCategory("");
     }
   };
 
@@ -33,20 +43,58 @@ export default function AddRecipe() {
 
   const handleRecipeSearch = async (e) => {
     e.preventDefault();
-    if (recipeId.trim()) {
-      try {
-        const response = await fetch(`http://localhost:5000/api/recipes/${recipeId}`);
-        if (response.ok) {
-          const recipe = await response.json();
-          // Update form fields with recipe data
-          // Add implementation here
-        } else {
-          alert("Recipe not found!");
-        }
-      } catch (error) {
-        console.error("Error fetching recipe:", error);
-        alert("Error fetching recipe. Please try again.");
+    console.log("Searching for recipe ID:", recipeId);
+
+    if (!recipeId.trim()) {
+      toast.error("Please enter a recipe ID");
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
+      console.log("Raw API Response:", response); // Debug log for entire response
+
+      if (response.data && response.data.data) {
+        const recipe = response.data.data;
+        console.log("Recipe data:", recipe); // Debug log for recipe data
+
+        // Update form fields with recipe data
+        setTitle(recipe.title || '');
+        setDescription(recipe.description || '');
+        
+        // Handle ingredients - ensure it's an array
+        const recipeIngredients = Array.isArray(recipe.ingredients) 
+          ? recipe.ingredients 
+          : [{ ingredient: "", alternative: "" }];
+        setIngredients(recipeIngredients);
+        
+        // Handle steps - ensure it's an array
+        const recipeSteps = Array.isArray(recipe.steps) 
+          ? recipe.steps 
+          : [""];
+        setSteps(recipeSteps);
+
+        // Handle categories - ensure it's an array
+        const recipeCategories = Array.isArray(recipe.categories) 
+          ? recipe.categories 
+          : [];
+        setCategories(recipeCategories);
+
+        // After setting the state, verify the values
+        console.log("Set title to:", recipe.title);
+        console.log("Set description to:", recipe.description);
+        console.log("Set ingredients to:", recipeIngredients);
+        console.log("Set steps to:", recipeSteps);
+        console.log("Set categories to:", recipeCategories);
+
+        toast.success("Recipe found and loaded successfully!");
+      } else {
+        console.log("No data in response:", response);
+        toast.error("Recipe data structure is invalid");
       }
+    } catch (error) {
+      console.error("Error fetching recipe:", error);
+      toast.error(error.response?.data?.message || "Failed to fetch recipe");
     }
   };
 
@@ -84,6 +132,9 @@ export default function AddRecipe() {
       formData.append('steps', JSON.stringify(stepValues));
       formData.append('categories', JSON.stringify(categories));
 
+      // Debug log
+      console.log('Categories being sent:', categories);
+
       const response = await axios.post('http://localhost:5000/api/recipes', formData, {
         headers: {
           'Content-Type': 'multipart/form-data', // Changed from application/json
@@ -110,32 +161,66 @@ export default function AddRecipe() {
     }
   };
 
+  const handleUpdate = async () => {
+    if (!recipeId.trim()) {
+      toast.error("Please search for a recipe first!");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      
+      if (image) {
+        formData.append('image', image);
+      }
+
+      const stepValues = steps.map((_, index) => 
+        document.getElementsByName('step')[index].value
+      ).filter(step => step.trim() !== '');
+
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('ingredients', JSON.stringify(ingredients.filter(ing => ing.ingredient.trim() !== '')));
+      formData.append('steps', JSON.stringify(stepValues));
+      formData.append('categories', JSON.stringify(categories));
+
+      const response = await axios.put(`http://localhost:5000/api/recipes/${recipeId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      if (response.status === 200) {
+        toast.success('Recipe updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating recipe:', error);
+      toast.error(error.response?.data?.error || 'Failed to update recipe. Please try again.');
+    }
+  };
+
   return (
     <div className="whole">
       <NavBar/>
       <div className={styles.container}>
         <div className={styles.content}>
           <h1>Add Recipe</h1>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Enter Recipe ID"
+              value={recipeId}
+              onChange={(e) => setRecipeId(e.target.value)}
+            />
+            <button 
+              type="button"
+              onClick={handleRecipeSearch}
+              className={styles.searchBtn}
+            >
+              Search Recipe
+            </button>
+          </div>
           <form onSubmit={handleSubmit}>
-            <div className={styles.formGroup}>
-              <label htmlFor="recipe-search">Search Recipe by ID</label>
-              <div className={styles.searchContainer}>
-                <input 
-                  type="text" 
-                  id="recipe-search" 
-                  value={recipeId}
-                  onChange={(e) => setRecipeId(e.target.value)}
-                  placeholder="Enter Recipe ID"
-                />
-                <button 
-                  type="button" 
-                  onClick={handleRecipeSearch}
-                  className={styles.searchBtn}
-                >
-                  Search
-                </button>
-              </div>
-            </div>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-image">Recipe Image</label>
               <input 
@@ -194,13 +279,24 @@ export default function AddRecipe() {
               <label htmlFor="recipe-categories">Recipe Categories</label>
               <div className={styles.categories}>
                 <div className={styles.categoryInput}>
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter a category"
-                  />
-                  <button type="button" onClick={addCategory} className={styles.addBtn}>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className={styles.categorySelect}
+                  >
+                    <option value="">Select a category</option>
+                    {availableCategories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                  <button 
+                    type="button" 
+                    onClick={addCategory} 
+                    className={styles.addBtn}
+                    disabled={!selectedCategory}
+                  >
                     Add Category
                   </button>
                 </div>
@@ -224,7 +320,14 @@ export default function AddRecipe() {
               <label htmlFor="recipe-steps">Recipe Steps</label>
               <div className={styles.steps}>
                 {steps.map((step, index) => (
-                  <input key={index} type="text" name="step" placeholder={step} />
+                  <input 
+                    key={index} 
+                    type="text" 
+                    name="step" 
+                    placeholder={`Step ${index + 1}`}
+                    value={step}
+                    onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
+                  />
                 ))}
               </div>
               <button type="button" className={styles.addBtn} onClick={addStep}>
@@ -233,7 +336,13 @@ export default function AddRecipe() {
             </div>
             <div className={styles.formGroup}>
               <button type="submit" className={styles.submitBtn}>Add Recipe</button>
-              <button type="button" className={styles.updateBtn}>Update Recipe</button>
+              <button 
+                type="button" 
+                className={styles.updateBtn} 
+                onClick={handleUpdate}
+              >
+                Update Recipe
+              </button>
               <button type="button" className={styles.deleteBtn}>Delete Recipe</button>
             </div>
           </form>

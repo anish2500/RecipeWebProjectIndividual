@@ -21,24 +21,38 @@ const create = async (req, res) => {
         // Parse JSON strings back to objects/arrays
         const ingredients = typeof body.ingredients === 'string' ? JSON.parse(body.ingredients) : body.ingredients;
         const steps = typeof body.steps === 'string' ? JSON.parse(body.steps) : body.steps;
-        const categories = typeof body.categories === 'string' ? JSON.parse(body.categories) : (body.categories || []);
+        
+        // Ensure categories is properly parsed and has a default empty array
+        let categories = [];
+        if (body.categories) {
+            try {
+                categories = typeof body.categories === 'string' ? JSON.parse(body.categories) : body.categories;
+            } catch (error) {
+                console.error('Error parsing categories:', error);
+                categories = [];
+            }
+        }
 
+        // Create the recipe with all fields
         const recipe = await Recipe.create({
             title: body.title,
             description: body.description,
             ingredients: ingredients,
             steps: steps,
             image: req.file ? `/uploads/${req.file.filename}` : null,
-            categories: categories
+            categories: categories // Make sure categories is included
         });
+
+        // Log the created recipe for debugging
+        console.log('Created recipe:', recipe.toJSON());
 
         res.status(201).send({ 
             data: recipe, 
             message: "Successfully created recipe" 
         });
     } catch (e) {
-        console.log(e);
-        res.status(500).json({ error: 'Failed to create recipe' });
+        console.error('Error creating recipe:', e);
+        res.status(500).json({ error: 'Failed to create recipe', details: e.message });
     }
 };
 
