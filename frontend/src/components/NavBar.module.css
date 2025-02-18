@@ -50,6 +50,7 @@
   font-weight: 500;
   font-family: "Poppins", sans-serif;
   transition: transform 0.3s ease, color 0.3s ease;
+  padding: 8px 12px;
 }
 
 .navLinks a:hover {
@@ -59,7 +60,8 @@
 
 .navLinks a.active {
   color: #4b70e2;
-  font-weight: 700;
+  font-weight: bold;
+  border-bottom: 2px solid #4b70e2;
 }
 
 .searchBar {
@@ -218,6 +220,16 @@
   
   .profileButton {
     padding: 2px;
+  }
+
+  .navLinks a {
+    padding: 10px;
+    text-align: center;
+  }
+
+  .navLinks a.active {
+    border-bottom: none;
+    background-color: #f8f9fa;
   }
 }
 

@@ -53,10 +53,21 @@ const Signin = () => {
                 headers: { "Content-Type": "application/json" }
             });
             if (response.data && response.data.data.access_token) {
-                localStorage.setItem("token", response.data.data.access_token); 
-                localStorage.setItem('userEmail', data.email); 
+                localStorage.setItem("token", response.data.data.access_token);
+                localStorage.setItem('userEmail', data.email);
+                
+                // Check if user is admin
+                const isAdmin = response.data.data.user && response.data.data.user.role === 'admin';
+                localStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
+                
                 toast.success("Login successful");
-                navigate("/body"); 
+                
+                // Redirect based on role
+                if (isAdmin) {
+                    navigate("/admin");
+                } else {
+                    navigate("/body");
+                }
             } else {
                 toast.error("Login failed! Check your email and password.");
             }

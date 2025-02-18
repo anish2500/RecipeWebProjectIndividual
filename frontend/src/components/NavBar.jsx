@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./NavBar.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const NavBar = ({ onSignOut }) => {
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const searchTimeoutRef = useRef(null);
-  const navigate = useNavigate();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [currentPath, setCurrentPath] = useState(location.pathname);
+  const searchTimeoutRef = useRef(null);
+  const navigate = useNavigate();
   const profileRef = useRef(null);
+
+  useEffect(() => {
+    setCurrentPath(location.pathname);
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -109,6 +115,10 @@ const NavBar = ({ onSignOut }) => {
     };
   }, []);
 
+  const isActive = (path) => {
+    return currentPath === path ? styles.active : '';
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -117,11 +127,11 @@ const NavBar = ({ onSignOut }) => {
       {!isMobile || isMenuOpen ? (
         <div className={`${styles.navLinks} ${isMenuOpen ? styles.open : ""}`}>
           <div className={styles.mainLinks}>
-            <Link to="/Body">Home</Link>
-            <Link to="/AboutUs">About Us</Link>
-            <Link to="/Contacts">Contacts</Link> 
-            <Link to="/addRecipe">Add Recipe</Link>
-            <Link to="/recipes">Recipes</Link>
+            <Link to="/Body" className={isActive('/Body')}>Home</Link>
+            <Link to="/AboutUs" className={isActive('/AboutUs')}>About Us</Link>
+            <Link to="/Contacts" className={isActive('/Contacts')}>Contacts</Link> 
+            <Link to="/addRecipe" className={isActive('/addRecipe')}>Add Recipe</Link>
+            <Link to="/recipes" className={isActive('/recipes')}>Recipes</Link>
           </div>
           <div className={styles.rightControls}>
             <div className={styles.searchContainer}>
