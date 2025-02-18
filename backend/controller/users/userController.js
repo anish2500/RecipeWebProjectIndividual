@@ -1,4 +1,5 @@
 import {User} from '../../model/userSchema.js';
+import bcrypt from 'bcrypt';
 
 
 
@@ -13,28 +14,38 @@ const getAll = async (req, res) => {
     }
 }
 
-const create = async (req, res) =>{
-
-
+const create = async (req, res) => {
     try {
-        const body = req.body
-        console.log(req.body)
+        const body = req.body;
+        console.log(req.body);
+        
         //validation
         if (!body?.email || !body?.name || !body?.password)
-            return res.status(500).send({ message: "Invalid paylod" });
+            return res.status(500).send({ message: "Invalid payload" });
+
+        // Hash password before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(body.password, salt);
+
         const users = await User.create({
             name: body.name,
             email: body.email,
-            password: body.password
+            password: hashedPassword  // Save the hashed password instead of plain text
         });
-        res.status(201).send({ data: users, message: "successfully created user" })
+        
+        // Don't send password back in response
+        const userResponse = {
+            id: users.id,
+            name: users.name,
+            email: users.email
+        };
+        
+        res.status(201).send({ data: userResponse, message: "successfully created user" });
     } catch (e) {
-        console.log(e)
-        res.status(500).json({ error: 'Failed to fetch users' });
+        console.log(e);
+        res.status(500).json({ error: 'Failed to create user' });
     }
-
-
-}
+};
 
 
 const update = async (req, res) => {
