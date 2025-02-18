@@ -47,26 +47,23 @@ const Signin = () => {
         });
     };
 
-    const handleSignIn = (data) => {
-        axios.post(`${API.BASE_URL}/api/auth/login`, data, {
-            headers: { "Content-Type": "application/json" }
-        })
-        .then((response) => {
-            debugger;
+    const handleSignIn = async (data) => {
+        try {
+            const response = await axios.post(`${API.BASE_URL}/api/auth/login`, data, {
+                headers: { "Content-Type": "application/json" }
+            });
             if (response.data && response.data.data.access_token) {
-                localStorage.setItem("token", response.data.data.access_token); // Store Token
+                localStorage.setItem("token", response.data.data.access_token); 
+                localStorage.setItem('userEmail', data.email); 
                 toast.success("Login successful");
-                navigate("/body"); // Navigate to another page
+                navigate("/body"); 
             } else {
                 toast.error("Login failed! Check your email and password.");
-
             }
-        })
-        .catch((error) => {
+        } catch (error) {
             console.error("Login error:", error);
-                toast.error(error.response?.data?.message || "Error logging in. Please try again.");
-
-        });
+            toast.error(error.response?.data?.message || "Error logging in. Please try again.");
+        }
     };
 
     return (

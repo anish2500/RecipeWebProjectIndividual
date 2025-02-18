@@ -1,10 +1,27 @@
 import { Recipe } from '../../model/recipeSchema.js';
+import path from 'path';
 
 const getAll = async (req, res) => {
     try {
-        const recipes = await Recipe.findAll();
-        res.status(200).send({ data: recipes, message: "Successfully fetched recipes" });
+        const recipes = await Recipe.findAll({
+            order: [['createdAt', 'DESC']]
+        });
+        
+        // Map recipes to include full image URLs
+        const recipesWithFullUrls = recipes.map(recipe => {
+            const recipeData = recipe.toJSON();
+            if (recipeData.image) {
+                recipeData.image = `uploads/${path.basename(recipeData.image)}`;
+            }
+            return recipeData;
+        });
+
+        res.status(200).send({ 
+            data: recipesWithFullUrls,
+            message: "Successfully fetched recipes" 
+        });
     } catch (e) {
+        console.error('Error fetching recipes:', e);
         res.status(500).json({ error: 'Failed to fetch recipes' });
     }
 };
@@ -13,46 +30,35 @@ const create = async (req, res) => {
     try {
         const body = req.body;
         
-        // Validation
-        if (!body?.title || !body?.description || !body?.ingredients || !body?.steps) {
-            return res.status(400).send({ message: "Invalid payload. Required fields: title, description, ingredients, steps" });
+        if (!body?.title || !body?.description) {
+            return res.status(400).send({ message: "Missing required fields" });
         }
 
-        // Parse JSON strings back to objects/arrays
-        const ingredients = typeof body.ingredients === 'string' ? JSON.parse(body.ingredients) : body.ingredients;
-        const steps = typeof body.steps === 'string' ? JSON.parse(body.steps) : body.steps;
-        
-        // Ensure categories is properly parsed and has a default empty array
-        let categories = [];
-        if (body.categories) {
-            try {
-                categories = typeof body.categories === 'string' ? JSON.parse(body.categories) : body.categories;
-            } catch (error) {
-                console.error('Error parsing categories:', error);
-                categories = [];
-            }
+        let imagePath = null;
+        if (req.file) {
+            // FIXED: Store only the relative path from uploads folder
+            // OLD: imagePath = req.file.path
+            // NEW: Store path that matches the static serve URL
+            imagePath = `uploads/${req.file.filename}`;
+            console.log('Image path being saved to DB:', imagePath); // Debug log
         }
 
-        // Create the recipe with all fields
         const recipe = await Recipe.create({
             title: body.title,
             description: body.description,
-            ingredients: ingredients,
-            steps: steps,
-            image: req.file ? `/uploads/${req.file.filename}` : null,
-            categories: categories // Make sure categories is included
+            ingredients: JSON.parse(body.ingredients || '[]'),
+            steps: JSON.parse(body.steps || '[]'),
+            categories: JSON.parse(body.categories || '[]'),
+            image: imagePath // This now stores the correct relative path
         });
 
-        // Log the created recipe for debugging
-        console.log('Created recipe:', recipe.toJSON());
-
-        res.status(201).send({ 
-            data: recipe, 
-            message: "Successfully created recipe" 
+        res.status(201).send({
+            data: recipe,
+            message: "Recipe created successfully"
         });
     } catch (e) {
         console.error('Error creating recipe:', e);
-        res.status(500).json({ error: 'Failed to create recipe', details: e.message });
+        res.status(500).json({ error: 'Failed to create recipe' });
     }
 };
 
@@ -126,7 +132,5 @@ const deleteById = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete recipe' });
     }
 };
-
-
 
 export const recipeController = { getAll, create, update, getById, deleteById };

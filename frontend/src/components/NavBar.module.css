@@ -211,4 +211,121 @@
     width: auto;
     min-width: 120px;
   }
+
+  .currentUserEmail {
+    display: none;
+  }
+  
+  .profileButton {
+    padding: 2px;
+  }
+}
+
+.profileSection {
+  position: relative;
+  margin-left: 20px;
+}
+
+.profileIcon {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarPlaceholder {
+  width: 35px;
+  height: 35px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.profileDropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  min-width: 220px;
+  z-index: 1000;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
+}
+
+.dropdownAvatarPlaceholder {
+  width: 50px;
+  height: 50px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.userEmail {
+  font-size: 14px;
+  color: #333;
+  word-break: break-all;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.userRole {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.logoutButton {
+  width: 100%;
+  padding: 10px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  font-weight: 500;
+}
+
+.logoutButton:hover {
+  background: #ff2222;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 800px) {
+  .currentUserEmail {
+    display: none;
+  }
+  
+  .profileButton {
+    padding: 2px;
+  }
 }

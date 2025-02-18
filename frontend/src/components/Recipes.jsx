@@ -87,6 +87,7 @@ const Recipes = () => {
                     ) : (
                         <div className={styles.recipeGrid}>
                             {recipes.map((recipe) => (
+                                
                                 <div key={recipe.id} className={styles.recipeCard}>
                                     <div className={styles.imageContainer}>
                                         {recipe.image ? (
