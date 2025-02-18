@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { recipeRouter } from './routes/recipeRoutes.js';
+import { recipeRouter } from './Routes/recipeRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';

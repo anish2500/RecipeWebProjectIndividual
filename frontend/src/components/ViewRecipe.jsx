@@ -1,72 +1,170 @@
 // React Component: ViewRecipe.js
-import React from 'react';
-import styles from './ViewRecipe.module.css';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import NavBar from './NavBar';
 import Footer from './Footer';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import styles from './ViewRecipe.module.css';
+
+const API_BASE_URL = 'http://localhost:5000';
 
 const ViewRecipe = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [recipe, setRecipe] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchRecipe();
+    }, [id]);
+
+    const fetchRecipe = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${API_BASE_URL}/api/recipes/${id}`);
+            
+            if (response.data && response.data.data) {
+                const recipeData = response.data.data;
+                console.log('Received recipe data:', recipeData); // Debug log
+
+                // Handle ingredients - expecting array of objects with ingredient and alternative
+                const ingredients = Array.isArray(recipeData.ingredients) 
+                    ? recipeData.ingredients.map(ing => {
+                        return typeof ing === 'object' 
+                            ? ing 
+                            : { ingredient: ing, alternative: '' };
+                    })
+                    : [];
+
+                // Update recipe data with properly formatted ingredients
+                setRecipe({
+                    ...recipeData,
+                    ingredients: ingredients
+                });
+                setError(null);
+            } else {
+                setError('Recipe not found');
+            }
+        } catch (error) {
+            console.error('Error fetching recipe:', error);
+            setError('Failed to load recipe. Please try again later.');
+            toast.error('Failed to load recipe');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return '/placeholder-image.jpg';
+        const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+        return `${API_BASE_URL}/${cleanPath}`;
+    };
+
+    const handleBack = () => {
+        navigate('/recipes');
+    };
+
+    if (loading) {
+        return (
+            <div className={styles.pageContainer}>
+                <NavBar />
+                <div className={styles.contentWrap}>
+                    <div className={styles.loading}>Loading recipe...</div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    if (error || !recipe) {
+        return (
+            <div className={styles.pageContainer}>
+                <NavBar />
+                <div className={styles.contentWrap}>
+                    <div className={styles.error}>{error || 'Recipe not found'}</div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
     return (
-        
-        <div className="whole">
-            <NavBar/>
-       
-        
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>Classic Nepali Daal Bhaat</h1>
-            </div>
-            <div className={styles.imageContainer}>
-                <img src="./src/assets/daalbhat.jpg" alt="daalbhat" />
-            </div>
-            <div className={styles.details}>
-                <div>
-                    <p>Prep Time: 20 mins</p>
+        <div className={styles.pageContainer}>
+            <NavBar />
+            <div className={styles.contentWrap}>
+                <button 
+                    onClick={handleBack}
+                    className={styles.backButton}
+                >
+                    ← Back to Recipes
+                </button>
+                
+                <div className={styles.recipeContainer}>
+                    <h1 className={styles.recipeTitle}>{recipe.title}</h1>
+                    
+                    <div className={styles.imageContainer}>
+                        <img 
+                            src={getImageUrl(recipe.image)}
+                            alt={recipe.title}
+                            className={styles.recipeImage}
+                            onError={(e) => {
+                                e.target.src = '/placeholder-image.jpg';
+                            }}
+                        />
+                    </div>
+
+                    <div className={styles.recipeDetails}>
+                        <section className={styles.description}>
+                            <h2>Description</h2>
+                            <p>{recipe.description}</p>
+                        </section>
+
+                        <section className={styles.ingredients}>
+                            <h2>Ingredients</h2>
+                            <ul>
+                                {recipe.ingredients.map((ing, index) => (
+                                    <li key={index}>
+                                        {ing.ingredient}
+                                        {ing.alternative && (
+                                            <span className={styles.alternative}>
+                                                (Alternative: {ing.alternative})
+                                            </span>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+
+                        <section className={styles.steps}>
+                            <h2>Instructions</h2>
+                            <ol>
+                                {recipe.steps.map((step, index) => (
+                                    <li key={index}>{step}</li>
+                                ))}
+                            </ol>
+                        </section>
+
+                        {recipe.categories && recipe.categories.length > 0 && (
+                            <section className={styles.categories}>
+                                <h2>Categories</h2>
+                                <div className={styles.categoryTags}>
+                                    {recipe.categories.map((category, index) => (
+                                        <span key={index} className={styles.categoryTag}>
+                                            {category}
+                                        </span>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+                    </div>
                 </div>
-                <div>
-                    <p>Cook Time: 30 mins</p>
-                </div>
-                <div>
-                    <p>Servings: 4</p>
-                </div>
             </div>
-            <div className={styles.contentSection}>
-                <h2>Ingredients</h2>
-                <ul>
-                    <li>Rice: 2 cups</li>
-                    <li>Yellow Lentils (Moong or Toor Dal): 1 cup</li>
-                    <li>Turmeric Powder: 1 tsp</li>
-                    <li>Salt: to taste</li>
-                    <li>Garlic: 4 cloves, minced</li>
-                    <li>Ginger: 1-inch piece, minced</li>
-                    <li>Green Chili: 2, chopped (optional)</li>
-                    <li>Cumin Seeds: 1 tsp</li>
-                    <li>Ghee or Oil: 2 tbsp</li>
-                    <li>Fresh Coriander: for garnish</li>
-                </ul>
-            </div>
-            <div className={styles.contentSection}>
-                <h2>Ingredient Alternatives</h2>
-                <ul>
-                    <li>Yellow Lentils: Can be substituted with red lentils or split peas</li>
-                    <li>Ghee: Can be substituted with butter or vegetable oil</li>
-                    <li>Green Chili: Can be omitted or replaced with red chili powder</li>
-                </ul>
-            </div>
-            <div className={styles.contentSection}>
-                <h2>Instructions</h2>
-                <ol>
-                    <li>Wash the rice and lentils separately. Soak them in water for 10 minutes.</li>
-                    <li>Cook the rice in a pot or rice cooker with 4 cups of water until soft and fluffy.</li>
-                    <li>In another pot, boil the lentils with 4 cups of water, turmeric powder, and salt. Simmer until the lentils are soft and creamy.</li>
-                    <li>In a small pan, heat ghee or oil. Add cumin seeds and let them splutter. Add minced garlic, ginger, and green chilies. Sauté until aromatic.</li>
-                    <li>Pour the tempered mixture into the cooked lentils and stir well. Adjust salt as needed.</li>
-                    <li>Serve the daal hot with steamed rice. Garnish with fresh coriander. Optionally, add a side of pickles and steamed vegetables.</li>
-                </ol>
-            </div>
+            <Footer />
+            <ToastContainer position="bottom-right" />
         </div>
-        <Footer/>
-        </div>
-        
     );
 };
 

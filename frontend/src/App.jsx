@@ -39,7 +39,7 @@ const App = () => {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/body" element={<Body onSignOut={handleSignOut} />} />
-          <Route path="/view-recipe" element={<ViewRecipe />} />
+          <Route path="/view-recipe/:id" element={<ViewRecipe />} />
           <Route path="/addRecipe" element={<AddRecipe />} />
           <Route path="/Contacts" element={<Contacts />} />
           <Route path="/AboutUs" element={<AboutUs />} />
