@@ -87,23 +87,7 @@ const Recipes = () => {
                     ) : (
                         <div className={styles.recipeGrid}>
                             {recipes.map((recipe) => (
-                                
                                 <div key={recipe.id} className={styles.recipeCard}>
-                                    <div className={styles.imageContainer}>
-                                        {recipe.image ? (
-                                            <img 
-                                                src={getImageUrl(recipe.image)}
-                                                alt={recipe.title}
-                                                className={styles.recipeImage}
-                                                onError={(e) => {
-                                                    e.target.src = '/placeholder-image.jpg';
-                                                    console.log('Image failed to load:', recipe.image);
-                                                }}
-                                            />
-                                        ) : (
-                                            <div className={styles.noImage}>No Image Available</div>
-                                        )}
-                                    </div>
                                     <h3 className={styles.recipeTitle}>{recipe.title}</h3>
                                     <button 
                                         className={styles.viewButton}

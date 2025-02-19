@@ -27,6 +27,9 @@ const upload = multer({
     }
 });
 
+// Add new search route before other routes
+router.get('/search', recipeController.searchRecipes);
+
 router.get('/', recipeController.getAll);
 
 

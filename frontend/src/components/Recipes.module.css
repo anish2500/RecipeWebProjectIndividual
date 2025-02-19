@@ -4,6 +4,8 @@
 }
 
 .contentWrap {
+    max-width: 1200px;
+    margin: 0 auto;
     padding-bottom: 2.5rem;
 }
 
@@ -73,6 +75,7 @@
 }
 
 .recipeTitle {
+    font-weight: 600;
     padding: 1rem;
     margin: 0;
     font-size: 1.2rem;
@@ -84,7 +87,7 @@
 .viewButton {
     width: 100%;
     padding: 1rem;
-    background: #007bff;
+    background: #3498db;
     color: white;
     border: none;
     cursor: pointer;
@@ -94,7 +97,7 @@
 }
 
 .viewButton:hover {
-    background: #0056b3;
+    background: #2980b9;
 }
 
 .retryButton, .addButton {
@@ -118,8 +121,8 @@
 }
 
 .addButton {
-    background-color: #007bff;
     color: white;
+    background-color: #007bff;
 }
 
 .addButton:hover {
@@ -142,4 +145,49 @@
     padding: 3rem;
     color: #666;
     font-size: 1.2rem;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 800px) {
+    .mainContent {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .recipeGrid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .recipeCard {
+        max-width: 100%;
+    }
+
+    .imageContainer {
+        height: 180px;
+    }
+
+    .recipeTitle {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+    }
+
+    .viewButton {
+        padding: 0.8rem;
+    }
+
+    .retryButton, .addButton {
+        padding: 0.4rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    .loading, .error, .noRecipes {
+        padding: 1.5rem;
+        font-size: 1rem;
+    }
 }

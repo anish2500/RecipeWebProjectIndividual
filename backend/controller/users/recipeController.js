@@ -1,4 +1,6 @@
 import { Recipe } from '../../model/recipeSchema.js';
+import { Op } from 'sequelize';
+import { sequelize } from '../../database/db.js';
 import path from 'path';
 
 const getAll = async (req, res) => {
@@ -133,4 +135,64 @@ const deleteById = async (req, res) => {
     }
 };
 
-export const recipeController = { getAll, create, update, getById, deleteById };
+const searchRecipes = async (req, res) => {
+    try {
+        const { query } = req.query;
+        
+        if (!query || query.trim() === '') {
+            return res.status(200).json({
+                data: [],
+                message: 'Empty search query'
+            });
+        }
+
+        // Sanitize the search query
+        const sanitizedQuery = query.trim().replace(/[%_]/g, '\\$&');
+
+        const recipes = await Recipe.findAll({
+            where: {
+                [Op.or]: [
+                    {
+                        title: {
+                            [Op.iLike]: `%${sanitizedQuery}%`
+                        }
+                    },
+                    {
+                        description: {
+                            [Op.iLike]: `%${sanitizedQuery}%`
+                        }
+                    },
+                    sequelize.where(
+                        sequelize.cast(sequelize.col('categories'), 'text'),
+                        { [Op.iLike]: `%${sanitizedQuery}%` }
+                    )
+                ]
+            },
+            limit: 10,
+            order: [['title', 'ASC']]
+        });
+
+        // Format the response
+        const formattedRecipes = recipes.map(recipe => {
+            const recipeData = recipe.toJSON();
+            if (recipeData.image) {
+                recipeData.image = `uploads/${path.basename(recipeData.image)}`;
+            }
+            return recipeData;
+        });
+
+        return res.status(200).json({
+            data: formattedRecipes,
+            message: formattedRecipes.length > 0 ? 'Search successful' : 'No recipes found'
+        });
+
+    } catch (error) {
+        console.error('Search error:', error);
+        return res.status(500).json({
+            error: error.message,
+            message: 'An error occurred during search'
+        });
+    }
+};
+
+export const recipeController = { getAll, create, update, getById, deleteById, searchRecipes };

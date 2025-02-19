@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./NavBar.module.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../utils/axiosConfig";
 
 const NavBar = ({ onSignOut }) => {
   const location = useLocation();
@@ -32,35 +32,44 @@ const NavBar = ({ onSignOut }) => {
   };
 
   const handleSearch = async (query) => {
+    console.log('Searching for:', query); // Debug log
     setSearchQuery(query);
     
-    // Clear previous timeout
     if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
+        clearTimeout(searchTimeoutRef.current);
     }
 
     if (query.trim() === "") {
-      setSearchResults([]);
-      setShowPopup(false);
-      return;
+        setSearchResults([]);
+        setShowPopup(false);
+        return;
     }
 
-    // Set new timeout for debouncing
     searchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const response = await axios.get(`/api/recipes/search?query=${encodeURIComponent(query)}`);
-        setSearchResults(response.data.data);
-        setShowPopup(true);
-      } catch (error) {
-        console.error("Error searching recipes:", error);
-      }
-    }, 300); // Debounce for 300ms
+        try {
+            console.log('Making API call for:', query); // Debug log
+            const response = await axiosInstance.get(`/api/recipes/search?query=${encodeURIComponent(query)}`);
+            console.log('Search response:', response.data); // Debug log
+            
+            if (response.data.data && response.data.data.length > 0) {
+                setSearchResults(response.data.data);
+                setShowPopup(true);
+            } else {
+                setSearchResults([]);
+                setShowPopup(true); // Show "No results found"
+            }
+        } catch (error) {
+            console.error("Error searching recipes:", error);
+            setSearchResults([]);
+            setShowPopup(true); // Keep popup visible to show error state
+        }
+    }, 300);
   };
 
   const handleRecipeClick = (recipeId) => {
     setShowPopup(false);
     setSearchQuery("");
-    navigate(`/recipe/${recipeId}`);
+    navigate(`/view-recipe/${recipeId}`); // Updated to match the route in App.jsx
   };
 
   const toggleMenu = () => {
@@ -136,29 +145,30 @@ const NavBar = ({ onSignOut }) => {
           <div className={styles.rightControls}>
             <div className={styles.searchContainer}>
               <div className={styles.searchBar}>
-                <input 
-                  placeholder="Search recipes..." 
+                <input
                   type="text"
+                  placeholder="Search recipes..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                 />
               </div>
-              {showPopup && searchResults.length > 0 && (
-                <div className={styles.searchPopup}>
-                  {searchResults.map((recipe) => (
-                    <div
-                      key={recipe.id}
-                      className={styles.searchResult}
-                      onClick={() => handleRecipeClick(recipe.id)}
-                    >
-                      <img 
-                        src={recipe.image} 
-                        alt={recipe.title}
-                        className={styles.searchResultImage}
-                      />
-                      <span>{recipe.title}</span>
+              {showPopup && (
+                <div className={styles.searchResults}>
+                  {searchResults.length > 0 ? (
+                    searchResults.map((recipe) => (
+                      <div
+                        key={recipe.id}
+                        className={styles.searchResultItem}
+                        onClick={() => handleRecipeClick(recipe.id)}
+                      >
+                        {recipe.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div className={styles.noResults}>
+                      No recipes found
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </div>

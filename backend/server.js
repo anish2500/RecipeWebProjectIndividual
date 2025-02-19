@@ -12,7 +12,20 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', // Vite's default port
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    exposedHeaders: ['Access-Control-Allow-Credentials']
+}));
+
+// Enable pre-flight requests for all routes
+app.options('*', cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Serve static files from uploads directory
@@ -28,7 +41,7 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = 5000; // Changed to match frontend expectation
 
 // Initialize database and start server
 const startServer = async () => {
