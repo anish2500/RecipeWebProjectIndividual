@@ -8,66 +8,160 @@ body {
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 2rem;
   }
-  .contactSection {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
+  .heroSection {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
   }
-  .contactInfo {
-    width: 45%;
+  .heroSection h1 {
+    font-size: 3rem;
+    color: #2d3436;
+    margin-bottom: 1rem;
   }
-  .contactInfo h2 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 10px;
+  .heroSection p {
+    font-size: 1.2rem;
+    color: #636e72;
   }
-  .contactInfo p {
-    font-size: 16px;
-    margin-bottom: 20px;
+  .contactGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
   }
-  .contactInfo .infoItem {
+  .contactCard {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+  .contactCard:hover {
+    transform: translateY(-5px);
+  }
+  .iconWrapper {
+    width: 60px;
+    height: 60px;
+    background: #6c5ce7;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    justify-content: center;
+    margin: 0 auto 1rem;
   }
-  .contactInfo .infoItem i {
-    font-size: 20px;
-    margin-right: 10px;
+  .iconWrapper i {
+    font-size: 24px;
+    color: white;
   }
-  .contactForm {
-    width: 45%;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  .contactCard h3 {
+    color: #2d3436;
+    margin-bottom: 1rem;
   }
-  .contactForm input, .contactForm textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #eaeaea;
-    border-radius: 4px;
+  .contactCard p {
+    color: #636e72;
+    margin: 0.5rem 0;
   }
-  .contactForm button {
-    width: 100%;
-    padding: 10px;
-    background-color: #000;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
+  .businessHours {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 4rem;
+  }
+  .businessHours h2 {
+    text-align: center;
+    color: #2d3436;
+    margin-bottom: 2rem;
+  }
+  .hoursGrid {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .hourRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  .hourRow:last-child {
+    border-bottom: none;
+  }
+  .teamSection {
+    margin-bottom: 4rem;
+  }
+  .teamSection h2 {
+    text-align: center;
+    color: #2d3436;
+    margin-bottom: 2rem;
+  }
+  .teamGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  .teamCard {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  .teamImage {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+  }
+  .teamCard h3 {
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+  }
+  .role {
+    color: #6c5ce7;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .contact {
+    color: #636e72;
+  }
+  .socialSection {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .socialSection h2 {
+    color: #2d3436;
+    margin-bottom: 2rem;
+  }
+  .socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+  .socialLinks a {
+    width: 50px;
+    height: 50px;
+    background: #6c5ce7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  .socialLinks a:hover {
+    transform: translateY(-5px);
+    background: #5f50e1;
   }
   @media (max-width: 768px) {
-    .contactSection {
-        flex-direction: column;
-        align-items: center;
+    .contactGrid {
+      grid-template-columns: 1fr;
     }
-    .contactInfo, .contactForm {
-        width: 100%;
-        margin-bottom: 20px;
+    .teamGrid {
+      grid-template-columns: 1fr;
     }
   }
-  

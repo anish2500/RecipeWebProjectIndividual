@@ -1,0 +1,232 @@
+.admin-dashboard {
+    min-height: 100vh;
+    background-color: #f5f7fb;
+}
+
+.admin-nav {
+    background-color: #764ba2;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-nav h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: white;
+    color: #764ba2;
+}
+
+.dashboard-content {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+    font-size: 2rem;
+    color: #764ba2;
+    font-weight: bold;
+    margin: 0;
+}
+
+.data-tables {
+    display: grid;
+    gap: 2rem;
+}
+
+.table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #666;
+    font-weight: 600;
+}
+
+.view-btn {
+    background-color: #764ba2;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.view-btn:hover {
+    background-color: #5d3b82;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status.active {
+    background-color: #e3fcef;
+    color: #00875a;
+}
+
+.status.pending {
+    background-color: #fff7e6;
+    color: #b76e00;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal-content {
+    padding: 1.5rem;
+}
+
+.user-info {
+    margin-bottom: 2rem;
+}
+
+.user-info h3, .user-recipes h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.user-info p {
+    margin: 0.5rem 0;
+    color: #666;
+}
+
+.user-recipes ul {
+    list-style: none;
+    padding: 0;
+}
+
+.user-recipes li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.user-recipes li:last-child {
+    border-bottom: none;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 1rem;
+    }
+
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+
+    th, td {
+        padding: 0.75rem;
+    }
+
+    .modal {
+        width: 95%;
+        margin: 1rem;
+    }
+}

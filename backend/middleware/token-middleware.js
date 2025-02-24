@@ -4,28 +4,35 @@ dotenv.config();
 
 // Middleware to verify JWT token
 export function authenticateToken(req, res, next) {
+  // List of paths that should skip authentication
+  const publicPaths = [
+    '/api/auth/login',
+    '/api/user',
+    '/api/admin',
+    '/uploads'  // Add uploads path to public routes
+  ];
 
-  const token = req.header("Authorization")?.split(" ")[1];
-  // Skip token verification for the login route
-  if (req.path === "/api/auth/login" || req.path === "/api/user" || req.path === "/api/admin") {
-    console.log(`Skipping token verification for ${req.path}`); // Debugging: Log skipped routes
+  // Check if the current path starts with any of the public paths
+  const isPublicPath = publicPaths.some(path => req.path.startsWith(path));
+  
+  if (isPublicPath) {
+    console.log(`Skipping token verification for public path: ${req.path}`);
     return next();
   }
 
-  // Get token from Authorization header
-
+  const token = req.header("Authorization")?.split(" ")[1];
 
   if (!token) {
-    return res
-      .status(401)
-      .send({ message: "Access denied. No token provided." });
+    console.log(`No token provided for path: ${req.path}`);
+    return res.status(401).send({ message: "Access denied. No token provided." });
   }
 
   jwt.verify(token, process.env.secretkey, (err, decoded) => {
     if (err) {
+      console.log(`Invalid token for path: ${req.path}`);
       return res.status(403).send("Invalid or expired token.");
     }
-    req.user = decoded; // Attach decoded payload to request object
-    next(); // Proceed to the next middleware or route handler
+    req.user = decoded;
+    next();
   });
 }

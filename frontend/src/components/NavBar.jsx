@@ -132,6 +132,9 @@ const NavBar = ({ onSignOut }) => {
     <nav className={styles.navbar}>
       <div className={styles.logo}>
         <label htmlFor="cook">CookoPedia</label>
+        <Link to="/admin/signin" className={styles.adminButton}>
+          Admin
+        </Link>
       </div>
       {!isMobile || isMenuOpen ? (
         <div className={`${styles.navLinks} ${isMenuOpen ? styles.open : ""}`}>

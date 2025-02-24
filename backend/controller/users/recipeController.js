@@ -2,6 +2,14 @@ import { Recipe } from '../../model/recipeSchema.js';
 import { Op } from 'sequelize';
 import { sequelize } from '../../database/db.js';
 import path from 'path';
+import fs from 'fs';
+
+// Helper function to verify image exists
+const verifyImageExists = (imagePath) => {
+    if (!imagePath) return null;
+    const fullPath = path.join(process.cwd(), 'backend', imagePath);
+    return fs.existsSync(fullPath) ? imagePath : null;
+};
 
 const getAll = async (req, res) => {
     try {
@@ -13,7 +21,11 @@ const getAll = async (req, res) => {
         const recipesWithFullUrls = recipes.map(recipe => {
             const recipeData = recipe.toJSON();
             if (recipeData.image) {
-                recipeData.image = `uploads/${path.basename(recipeData.image)}`;
+                // Ensure the image path is properly formatted and exists
+                const cleanPath = recipeData.image.startsWith('uploads/') 
+                    ? recipeData.image 
+                    : `uploads/${path.basename(recipeData.image)}`;
+                recipeData.image = verifyImageExists(cleanPath);
             }
             return recipeData;
         });
@@ -38,11 +50,9 @@ const create = async (req, res) => {
 
         let imagePath = null;
         if (req.file) {
-            // FIXED: Store only the relative path from uploads folder
-            // OLD: imagePath = req.file.path
-            // NEW: Store path that matches the static serve URL
+            // Store the consistent path format
             imagePath = `uploads/${req.file.filename}`;
-            console.log('Image path being saved to DB:', imagePath); // Debug log
+            console.log('Image path being saved to DB:', imagePath);
         }
 
         const recipe = await Recipe.create({
@@ -88,7 +98,8 @@ const update = async (req, res) => {
                 : body.steps;
         }
         if (req.file) {
-            oldRecipe.image = `/uploads/${req.file.filename}`;
+            // Ensure consistent path format for updates
+            oldRecipe.image = `uploads/${req.file.filename}`;
         }
         if (body.categories) {
             oldRecipe.categories = typeof body.categories === 'string' 
@@ -112,9 +123,26 @@ const getById = async (req, res) => {
         if (!recipe) {
             return res.status(404).send({ message: "Recipe not found" });
         }
+
+        // Convert to plain object and format image path
+        const recipeData = recipe.toJSON();
+        if (recipeData.image) {
+            // Ensure the image path is properly formatted and exists
+            const cleanPath = recipeData.image.startsWith('uploads/') 
+                ? recipeData.image 
+                : `uploads/${path.basename(recipeData.image)}`;
+            
+            // Verify image exists and set to null if it doesn't
+            recipeData.image = verifyImageExists(cleanPath);
+            
+            if (!recipeData.image) {
+                console.log(`Image not found for recipe ${id}: ${cleanPath}`);
+            }
+        }
         
-        res.status(200).send({ message: "Recipe fetched successfully", data: recipe });
+        res.status(200).send({ message: "Recipe fetched successfully", data: recipeData });
     } catch (e) {
+        console.error('Error fetching recipe:', e);
         res.status(500).json({ error: 'Failed to fetch recipe' });
     }
 };
@@ -176,7 +204,11 @@ const searchRecipes = async (req, res) => {
         const formattedRecipes = recipes.map(recipe => {
             const recipeData = recipe.toJSON();
             if (recipeData.image) {
-                recipeData.image = `uploads/${path.basename(recipeData.image)}`;
+                // Ensure the image path is properly formatted
+                const cleanPath = recipeData.image.startsWith('uploads/') 
+                    ? recipeData.image 
+                    : `uploads/${path.basename(recipeData.image)}`;
+                recipeData.image = verifyImageExists(cleanPath);
             }
             return recipeData;
         });

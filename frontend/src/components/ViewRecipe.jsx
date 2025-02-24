@@ -6,6 +6,7 @@ import Footer from './Footer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './ViewRecipe.module.css';
+import path from 'path';
 
 const ViewRecipe = () => {
     const { recipeId } = useParams();
@@ -13,12 +14,71 @@ const ViewRecipe = () => {
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     useEffect(() => {
         if (recipeId) {
             fetchRecipe();
         }
     }, [recipeId]); // Re-fetch when recipeId changes
+
+    useEffect(() => {
+        // Reset image states when recipe changes
+        if (recipe?.image) {
+            setImageLoaded(false);
+            setImageError(false);
+        }
+    }, [recipe]);
+
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) {
+            console.log('No image path provided, using placeholder');
+            return '/placeholder-image.jpg';
+        }
+
+        // Clean up the path and ensure it starts with uploads/
+        const cleanPath = imagePath.replace(/^\/+/, '').replace(/\\/g, '/');
+        const fullPath = cleanPath.startsWith('uploads/') 
+            ? cleanPath 
+            : `uploads/${path.basename(cleanPath)}`;
+            
+        const imageUrl = `http://localhost:5000/${fullPath}`;
+        console.log('Generated image URL:', imageUrl);
+        return imageUrl;
+    };
+
+    const preloadImage = async (imageUrl) => {
+        if (imageUrl.includes('placeholder-image.jpg')) {
+            console.log('Using placeholder image, no preload needed');
+            return Promise.resolve();
+        }
+
+        try {
+            console.log('Attempting to preload image:', imageUrl);
+            const img = new Image();
+            
+            return new Promise((resolve, reject) => {
+                img.onload = () => {
+                    console.log('Image preloaded successfully:', imageUrl);
+                    resolve();
+                };
+                
+                img.onerror = (error) => {
+                    console.error('Error preloading image:', {
+                        url: imageUrl,
+                        error: error?.message || 'Unknown error'
+                    });
+                    reject(new Error('Failed to preload image'));
+                };
+                
+                img.src = imageUrl;
+            });
+        } catch (error) {
+            console.error('Error in preloadImage:', error);
+            throw error;
+        }
+    };
 
     const fetchRecipe = async () => {
         try {
@@ -38,11 +98,31 @@ const ViewRecipe = () => {
                     })
                     : [];
 
-                // Update recipe data with properly formatted ingredients
+                // Update recipe data
                 setRecipe({
                     ...recipeData,
                     ingredients: ingredients
                 });
+
+                // Handle image loading
+                if (recipeData.image) {
+                    try {
+                        const imageUrl = getImageUrl(recipeData.image);
+                        console.log('Attempting to load recipe image:', imageUrl);
+                        await preloadImage(imageUrl);
+                        setImageLoaded(true);
+                        setImageError(false);
+                    } catch (error) {
+                        console.error('Failed to load recipe image:', error);
+                        setImageError(true);
+                        setImageLoaded(false);
+                    }
+                } else {
+                    console.log('Recipe has no image, using placeholder');
+                    setImageLoaded(true);
+                    setImageError(false);
+                }
+
                 setError(null);
             } else {
                 setError('Recipe not found');
@@ -55,13 +135,6 @@ const ViewRecipe = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '/placeholder-image.jpg';
-        // Remove any leading slashes and ensure proper URL construction
-        const cleanPath = imagePath.replace(/^\/+/, '');
-        return `http://localhost:5000/${cleanPath}`; // Use absolute URL
     };
 
     const handleBack = () => {
@@ -102,18 +175,51 @@ const ViewRecipe = () => {
                 <div className={styles.recipeContainer}>
                     <h1 className={styles.recipeTitle}>{recipe.title}</h1>
                     
-                    {recipe.image && (
-                        <div className={styles.imageContainer}>
-                            <img 
-                                src={getImageUrl(recipe.image)} 
-                                alt={recipe.title}
-                                className={styles.recipeImage}
-                                onError={(e) => {
-                                    e.target.src = '/placeholder-image.jpg';
-                                }}
-                            />
+                    <div className={styles.imageContainer}>
+                        <div className={styles.recipeImage}>
+                            {!imageLoaded && !imageError && (
+                                <div className={styles.loading}>Loading image...</div>
+                            )}
+                            {!imageError ? (
+                                <img 
+                                    src={getImageUrl(recipe.image)}
+                                    alt={recipe.title || 'Recipe image'}
+                                    className={`${styles.recipeImg} ${imageLoaded ? styles.loaded : ''}`}
+                                    style={{ 
+                                        opacity: imageLoaded ? 1 : 0,
+                                        display: 'block'
+                                    }}
+                                    onLoad={(e) => {
+                                        console.log('Image loaded in DOM:', e.target.src);
+                                        setImageLoaded(true);
+                                        setImageError(false);
+                                    }}
+                                    onError={(e) => {
+                                        const currentSrc = e.target.src;
+                                        console.error('Image load failed:', {
+                                            url: currentSrc,
+                                            recipeImage: recipe.image
+                                        });
+
+                                        // Always switch to placeholder on error
+                                        setImageError(true);
+                                        setImageLoaded(false);
+                                    }}
+                                />
+                            ) : (
+                                <div className={styles.imageError}>
+                                    <img 
+                                        src="/placeholder-image.jpg" 
+                                        alt="Recipe placeholder" 
+                                        className={styles.placeholderImage}
+                                    />
+                                    <div className={styles.errorMessage}>
+                                        Image not available
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     <div className={styles.recipeDetails}>
                         <div className={styles.description}>
