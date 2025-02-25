@@ -19,16 +19,16 @@ const AdminDashboard = () => {
         const fetchData = async () => {
             try {
                 const [usersResponse, recipesResponse] = await Promise.all([
-                    axios.get('http://localhost:5000/api/admin/users', {
+                    axios.get('http://localhost:5000/api/users', {
                         headers: { Authorization: `Bearer ${adminToken}` }
                     }),
-                    axios.get('http://localhost:5000/api/admin/recipes', {
+                    axios.get('http://localhost:5000/api/recipes', {
                         headers: { Authorization: `Bearer ${adminToken}` }
                     })
                 ]);
 
-                setUsers(usersResponse.data);
-                setRecipes(recipesResponse.data);
+                setUsers(usersResponse.data.data);
+                setRecipes(recipesResponse.data.data);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
                                     <th>User ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Recipes Count</th>
+                                    
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -135,7 +135,7 @@ const AdminDashboard = () => {
                                 <tr>
                                     <th>Recipe ID</th>
                                     <th>Title</th>
-                                    <th>Created By</th>
+                                    
                                     <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
