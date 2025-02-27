@@ -50,25 +50,47 @@ const AdminDashboard = () => {
 
     const handleDeleteUser = async (userId) => {
         const adminToken = localStorage.getItem('adminToken');
+        if (!window.confirm('Are you sure you want to delete this user?')) {
+            return;
+        }
+
         try {
-            await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
+            await axios.delete(`http://localhost:5000/api/users/${userId}`, {
                 headers: { Authorization: `Bearer ${adminToken}` }
             });
             setUsers(users.filter(user => user.id !== userId));
+            alert('User deleted successfully');
         } catch (error) {
             console.error('Error deleting user:', error);
+            if (error.response?.status === 401) {
+                localStorage.removeItem('adminToken');
+                navigate('/admin/signin');
+            } else {
+                alert('Failed to delete user. Please try again.');
+            }
         }
     };
 
     const handleDeleteRecipe = async (recipeId) => {
         const adminToken = localStorage.getItem('adminToken');
+        if (!window.confirm('Are you sure you want to delete this recipe?')) {
+            return;
+        }
+
         try {
-            await axios.delete(`http://localhost:5000/api/admin/recipes/${recipeId}`, {
+            await axios.delete(`http://localhost:5000/api/recipes/${recipeId}`, {
                 headers: { Authorization: `Bearer ${adminToken}` }
             });
             setRecipes(recipes.filter(recipe => recipe.id !== recipeId));
+            alert('Recipe deleted successfully');
         } catch (error) {
             console.error('Error deleting recipe:', error);
+            if (error.response?.status === 401) {
+                localStorage.removeItem('adminToken');
+                navigate('/admin/signin');
+            } else {
+                alert('Failed to delete recipe. Please try again.');
+            }
         }
     };
 
@@ -100,62 +122,66 @@ const AdminDashboard = () => {
                 <>
                     <div className="users-section">
                         <h2>Users Management</h2>
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map(user => (
-                                    <tr key={user.id}>
-                                        <td>{user.id}</td>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
-                                        <td>{recipes.filter(recipe => recipe.userId === user.id).length}</td>
-                                        <td>
-                                            <button onClick={() => handleDeleteUser(user.id)} className="delete-btn">
-                                                Delete
-                                            </button>
-                                        </td>
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        {/* <th>Username</th> */}
+                                        <th>Email</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {users.map(user => (
+                                        <tr key={user.id}>
+                                            {/* <td>{user.username}</td> */}
+                                            <td>{user.email}</td>
+                                            <td>
+                                                <button 
+                                                    onClick={() => handleDeleteUser(user.id)}
+                                                    className="delete-btn"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <div className="recipes-section">
                         <h2>Recipes Management</h2>
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Recipe ID</th>
-                                    <th>Title</th>
-                                    
-                                    <th>Created At</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recipes.map(recipe => (
-                                    <tr key={recipe.id}>
-                                        <td>{recipe.id}</td>
-                                        <td>{recipe.title}</td>
-                                        <td>{users.find(user => user.id === recipe.userId)?.name}</td>
-                                        <td>{new Date(recipe.createdAt).toLocaleDateString()}</td>
-                                        <td>
-                                            <button onClick={() => handleDeleteRecipe(recipe.id)} className="delete-btn">
-                                                Delete
-                                            </button>
-                                        </td>
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        {/* <th>Category</th> */}
+                                        {/* <th>Author</th> */}
+                                        <th>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {recipes.map(recipe => (
+                                        <tr key={recipe.id}>
+                                            <td>{recipe.title}</td>
+                                            {/* <td>{recipe.category}</td> */}
+                                            {/* <td>{recipe.author}</td> */}
+                                            <td>
+                                                <button 
+                                                    onClick={() => handleDeleteRecipe(recipe.id)}
+                                                    className="delete-btn"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </>
             )}
@@ -164,6 +190,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
-
-

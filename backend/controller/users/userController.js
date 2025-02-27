@@ -1,9 +1,5 @@
 import {User} from '../../model/userSchema.js';
 import bcrypt from 'bcrypt';
-
-
-
-
 const getAll = async (req, res) => {
     try {
         //fetching all the data from users table
@@ -101,9 +97,4 @@ const delelteById = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 }
-
-
-
-
-
 export const userController = {getAll,create, update,getById, delelteById}

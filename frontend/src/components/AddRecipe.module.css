@@ -305,6 +305,7 @@ h1 {
     color: #e74c3c;
     font-size: 0.9rem;
     margin-top: 5px;
+    display: block;
 }
 
 .imagePreview {

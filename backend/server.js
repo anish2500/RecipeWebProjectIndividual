@@ -69,10 +69,8 @@ app.use('/api/admin', adminRouter);
 
 // Apply authentication middleware to API routes only
 app.use('/api', authenticateToken);
-
 // Routes
 app.use('/api/recipes', recipeRouter);
-
 const PORT = 5000;
 
 // Initialize database and start server

@@ -1,42 +1,129 @@
 .admin-dashboard {
     min-height: 100vh;
-    background-color: #f5f7fb;
+    background-color: #f0f2f5;
+    padding: 2rem;
 }
 
-.admin-nav {
-    background-color: #764ba2;
+.dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 1rem 2rem;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.admin-nav h1 {
+.dashboard-header h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 2rem;
+    font-weight: 600;
 }
 
-.logout-btn {
-    background-color: transparent;
-    border: 2px solid white;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+.header-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.user-portal-btn, .logout-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.logout-btn:hover {
-    background-color: white;
-    color: #764ba2;
+.user-portal-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
 }
 
-.dashboard-content {
+.user-portal-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn {
+    background-color: #ff4757;
+    color: white;
+}
+
+.logout-btn:hover {
+    background-color: #ff6b81;
+}
+
+.users-section, .recipes-section {
+    background: white;
+    border-radius: 15px;
     padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.users-section h2, .recipes-section h2 {
+    color: #2d3436;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+td {
+    padding: 1rem;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: #f8fafc;
+}
+
+.delete-btn {
+    padding: 0.5rem 1rem;
+    background-color: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    background-color: #ff6b81;
+    transform: translateY(-1px);
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #64748b;
+    font-size: 1.2rem;
 }
 
 .stats-cards {
@@ -69,61 +156,6 @@
 .data-tables {
     display: grid;
     gap: 2rem;
-}
-
-.table-container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    overflow: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-th {
-    background-color: #f8f9fa;
-    color: #666;
-    font-weight: 600;
-}
-
-.view-btn {
-    background-color: #764ba2;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.view-btn:hover {
-    background-color: #5d3b82;
-}
-
-.status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.status.active {
-    background-color: #e3fcef;
-    color: #00875a;
-}
-
-.status.pending {
-    background-color: #fff7e6;
-    color: #b76e00;
 }
 
 .modal-overlay {
@@ -203,13 +235,35 @@ th {
     border-bottom: none;
 }
 
-.loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-size: 1.2rem;
-    color: #666;
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status.active {
+    background-color: #e3fcef;
+    color: #00875a;
+}
+
+.status.pending {
+    background-color: #fff7e6;
+    color: #b76e00;
+}
+
+.view-btn {
+    background-color: #764ba2;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.view-btn:hover {
+    background-color: #5d3b82;
 }
 
 @media (max-width: 768px) {

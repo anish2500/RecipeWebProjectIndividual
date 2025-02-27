@@ -5,6 +5,7 @@ import Footer from './Footer';
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useForm } from "react-hook-form";
 
 export default function AddRecipe() {
   const [steps, setSteps] = useState(["Step 1"]);
@@ -25,6 +26,94 @@ export default function AddRecipe() {
     "Korean",
     "American"
   ];
+
+  // Add React Hook Form
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+    trigger,
+    reset
+  } = useForm();
+
+  // Modify the form submission handler
+  const onSubmit = async (formData) => {
+    try {
+      // Create FormData object for multipart/form-data
+      const submitData = new FormData();
+      
+      // Append image if it exists
+      if (image) {
+        submitData.append('image', image);
+      }
+
+      // Get step values from inputs
+      const stepValues = steps.map((step) => step).filter(step => step.trim() !== '');
+
+      // Append all data to FormData
+      submitData.append('title', title);
+      submitData.append('description', description);
+      submitData.append('ingredients', JSON.stringify(ingredients.filter(ing => ing.ingredient.trim() !== '')));
+      submitData.append('steps', JSON.stringify(stepValues));
+      submitData.append('categories', JSON.stringify(categories));
+
+      // Debug log
+      console.log('Data being sent:', {
+        title,
+        description,
+        ingredients,
+        steps: stepValues,
+        categories
+      });
+
+      const response = await axios.post('http://localhost:5000/api/recipes', submitData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      if (response.status === 201) {
+        toast.success(response.data.message || 'Recipe created successfully!');
+        // Reset form
+        setTitle("");
+        setDescription("");
+        setIngredients([{ ingredient: "", alternative: "" }]);
+        setSteps(["Step 1"]);
+        setCategories([]);
+        setImage(null);
+        reset(); // Reset React Hook Form state
+        
+        // Reset file input
+        const fileInput = document.getElementById('recipe-image');
+        if (fileInput) fileInput.value = '';
+      }
+    } catch (error) {
+      console.error('Error creating recipe:', error);
+      toast.error(error.response?.data?.error || 'Failed to create recipe. Please try again.');
+    }
+  };
+
+  // Validate fields before submission
+  const validateFields = async () => {
+    const result = await trigger();
+    if (!result) {
+      if (errors.title) toast.error(errors.title.message);
+      if (errors.description) toast.error(errors.description.message);
+      if (errors.ingredients) toast.error("Please check ingredient fields");
+      if (errors.steps) toast.error("Please check recipe steps");
+      if (errors.categories) toast.error("Please add at least one category");
+      return false;
+    }
+    return true;
+  };
+
+  // Modified handleSubmit to use React Hook Form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const isValid = await validateFields();
+    if (!isValid) return;
+    handleFormSubmit(onSubmit)(e);
+  };
 
   const addStep = () => {
     setSteps([...steps, `Step ${steps.length + 1}`]);
@@ -110,59 +199,6 @@ export default function AddRecipe() {
     const newSteps = [...steps];
     newSteps[index] = value;
     setSteps(newSteps);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      // Create FormData object for multipart/form-data
-      const formData = new FormData();
-      
-      // Append image if it exists
-      if (image) {
-        formData.append('image', image);
-      }
-
-      // Get step values from inputs
-      const stepValues = steps.map((_, index) => 
-        document.getElementsByName('step')[index].value
-      ).filter(step => step.trim() !== '');
-
-      // Append all data to FormData
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('ingredients', JSON.stringify(ingredients.filter(ing => ing.ingredient.trim() !== '')));
-      formData.append('steps', JSON.stringify(stepValues));
-      formData.append('categories', JSON.stringify(categories));
-
-      // Debug log
-      console.log('Categories being sent:', categories);
-
-      const response = await axios.post('http://localhost:5000/api/recipes', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Changed from application/json
-        }
-      });
-
-      if (response.status === 201) {
-        toast.success(response.data.message || 'Recipe created successfully!');
-        // Reset form
-        setTitle("");
-        setDescription("");
-        setIngredients([{ ingredient: "", alternative: "" }]);
-        setSteps(["Step 1"]);
-        setCategories([]);
-        setImage(null);
-        
-        // Reset file input
-        const fileInput = document.getElementById('recipe-image');
-        if (fileInput) fileInput.value = '';
-      }
-    } catch (error) {
-      console.error('Error creating recipe:', error);
-      toast.error(error.response?.data?.error || 'Failed to create recipe. Please try again.');
-    }
   };
 
   const handleUpdate = async () => {
@@ -271,22 +307,30 @@ export default function AddRecipe() {
               <input 
                 type="text" 
                 id="recipe-title" 
-                name="recipe-title"
                 value={title}
+                {...register("title", {
+                  required: "Recipe title is required",
+                  minLength: { value: 3, message: "Title must be at least 3 characters" },
+                  maxLength: { value: 100, message: "Title must not exceed 100 characters" }
+                })}
                 onChange={(e) => setTitle(e.target.value)}
-                required
               />
+              {errors.title && <span className={styles.error}>{errors.title.message}</span>}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-description">Recipe Short Description</label>
               <textarea 
-                id="recipe-description" 
-                name="recipe-description" 
-                rows="3"
+                id="recipe-description"
                 value={description}
+                {...register("description", {
+                  required: "Recipe description is required",
+                  minLength: { value: 10, message: "Description must be at least 10 characters" },
+                  maxLength: { value: 500, message: "Description must not exceed 500 characters" }
+                })}
                 onChange={(e) => setDescription(e.target.value)}
-                required
+                rows="3"
               ></textarea>
+              {errors.description && <span className={styles.error}>{errors.description.message}</span>}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-ingredients">Recipe Ingredients</label>
@@ -295,16 +339,25 @@ export default function AddRecipe() {
                   <input 
                     type="text" 
                     value={ing.ingredient}
+                    {...register(`ingredients.${index}.ingredient`, {
+                      required: "Ingredient name is required",
+                      minLength: { value: 2, message: "Ingredient must be at least 2 characters" }
+                    })}
                     onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
                     placeholder="Ingredient" 
-                    required
                   />
                   <input 
                     type="text" 
                     value={ing.alternative}
+                    {...register(`ingredients.${index}.alternative`, {
+                      minLength: { value: 2, message: "Alternative must be at least 2 characters" }
+                    })}
                     onChange={(e) => handleIngredientChange(index, 'alternative', e.target.value)}
                     placeholder="Ingredient Alternative" 
                   />
+                  {errors.ingredients?.[index]?.ingredient && 
+                    <span className={styles.error}>{errors.ingredients[index].ingredient.message}</span>
+                  }
                 </div>
               ))}
               <button type="button" className={styles.addBtn} onClick={addIngredient}>
@@ -317,6 +370,11 @@ export default function AddRecipe() {
                 <div className={styles.categoryInput}>
                   <select
                     value={selectedCategory}
+                    {...register("selectedCategory", {
+                      validate: {
+                        notEmpty: value => categories.length > 0 || "Please add at least one category"
+                      }
+                    })}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className={styles.categorySelect}
                   >
@@ -329,12 +387,14 @@ export default function AddRecipe() {
                   </select>
                   <button 
                     type="button" 
-                    onClick={addCategory} 
-                    className={styles.addBtn}
-                    disabled={!selectedCategory}
+                    className={styles.addBtn} 
+                    onClick={addCategory}
                   >
                     Add Category
                   </button>
+                  {errors.selectedCategory && 
+                    <span className={styles.error}>{errors.selectedCategory.message}</span>
+                  }
                 </div>
                 <div className={styles.categoryTags}>
                   {categories.map((category, index) => (
@@ -356,14 +416,22 @@ export default function AddRecipe() {
               <label htmlFor="recipe-steps">Recipe Steps</label>
               <div className={styles.steps}>
                 {steps.map((step, index) => (
-                  <input 
-                    key={index} 
-                    type="text" 
-                    name="step" 
-                    placeholder={`Step ${index + 1}`}
-                    value={step}
-                    onChange={(e) => handleStepChange(index, e.target.value)}
-                  />
+                  <div key={index}>
+                    <input 
+                      type="text" 
+                      name="step"
+                      value={step}
+                      {...register(`steps.${index}`, {
+                        required: "Step description is required",
+                        minLength: { value: 5, message: "Step must be at least 5 characters" }
+                      })}
+                      onChange={(e) => handleStepChange(index, e.target.value)}
+                      placeholder={`Step ${index + 1}`}
+                    />
+                    {errors.steps?.[index] && 
+                      <span className={styles.error}>{errors.steps[index].message}</span>
+                    }
+                  </div>
                 ))}
               </div>
               <button type="button" className={styles.addBtn} onClick={addStep}>
@@ -391,7 +459,17 @@ export default function AddRecipe() {
         </div>
       </div>
       <Footer/>
-      <ToastContainer position="bottom-right" />
+      <ToastContainer 
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }
