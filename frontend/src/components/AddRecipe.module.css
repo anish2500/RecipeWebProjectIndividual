@@ -314,6 +314,21 @@ h1 {
     border-radius: 4px;
 }
 
+.stepContainer {
+    margin-bottom: 10px;
+  }
+  
+  .errorInput {
+    border-color: #ff0000;
+  }
+  
+  .error {
+    color: #ff0000;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: block;
+  }
+
 /* Mobile Responsive Styles */
 @media screen and (max-width: 800px) {
     .formContainer {
@@ -349,4 +364,15 @@ h1 {
     .imagePreview {
         max-width: 100%;
     }
+}
+
+.errorInput {
+  border: 1px solid red;
+}
+
+.error {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 4px;
+  display: block;
 }

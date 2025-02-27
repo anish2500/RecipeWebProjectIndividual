@@ -34,7 +34,11 @@ export default function AddRecipe() {
     formState: { errors },
     trigger,
     reset
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      image: null
+    }
+  });
 
   // Modify the form submission handler
   const onSubmit = async (formData) => {
@@ -93,15 +97,21 @@ export default function AddRecipe() {
     }
   };
 
-  // Validate fields before submission
+  // Modify the validateFields function
   const validateFields = async () => {
     const result = await trigger();
     if (!result) {
       if (errors.title) toast.error(errors.title.message);
       if (errors.description) toast.error(errors.description.message);
       if (errors.ingredients) toast.error("Please check ingredient fields");
-      if (errors.steps) toast.error("Please check recipe steps");
+      if (errors.steps) {
+        const stepErrors = Object.values(errors.steps);
+        stepErrors.forEach(error => {
+          if (error.message) toast.error(`Step ${error.message}`);
+        });
+      }
       if (errors.categories) toast.error("Please add at least one category");
+      if (errors.image) toast.error(errors.image.message);
       return false;
     }
     return true;
@@ -195,10 +205,13 @@ export default function AddRecipe() {
     setIngredients(newIngredients);
   };
 
+  // Modify the handleStepChange function
   const handleStepChange = (index, value) => {
     const newSteps = [...steps];
     newSteps[index] = value;
     setSteps(newSteps);
+    // Trigger validation for the changed step
+    trigger(`steps.${index}`);
   };
 
   const handleUpdate = async () => {
@@ -271,6 +284,27 @@ export default function AddRecipe() {
     }
   };
 
+  // Add image validation handler
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload a valid image file (JPEG, PNG, or JPG)');
+        e.target.value = '';
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB');
+        e.target.value = '';
+        return;
+      }
+      setImage(file);
+    }
+  };
+
   return (
     <div className="whole">
       <NavBar/>
@@ -298,9 +332,55 @@ export default function AddRecipe() {
               <input 
                 type="file" 
                 id="recipe-image" 
-                name="recipe-image"
-                onChange={(e) => setImage(e.target.files[0])}
+                accept="image/jpeg,image/png,image/jpg"
+                {...register("image", {
+                  validate: {
+                    required: (value) => {
+                      // Make image required only for new recipes, not for updates
+                      if (!recipeId && !image) {
+                        return "Please select an image for the recipe";
+                      }
+                      return true;
+                    },
+                    checkFileType: (value) => {
+                      if (value?.length > 0) {
+                        const file = value[0];
+                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                        if (!validTypes.includes(file.type)) {
+                          return 'Please upload a valid image file (JPEG, PNG, or JPG)';
+                        }
+                      }
+                      return true;
+                    },
+                    checkFileSize: (value) => {
+                      if (value?.length > 0) {
+                        const file = value[0];
+                        if (file.size > 5 * 1024 * 1024) {
+                          return 'Image size should be less than 5MB';
+                        }
+                      }
+                      return true;
+                    }
+                  }
+                })}
+                onChange={(e) => {
+                  handleImageChange(e);
+                  register("image").onChange(e); // Ensure React Hook Form knows about the change
+                }}
+                className={errors.image ? styles.errorInput : ''}
               />
+              {errors.image && (
+                <span className={styles.error}>{errors.image.message}</span>
+              )}
+              {image && (
+                <div className={styles.imagePreview}>
+                  <img 
+                    src={URL.createObjectURL(image)} 
+                    alt="Recipe preview" 
+                    style={{ maxWidth: '200px', marginTop: '10px' }}
+                  />
+                </div>
+              )}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-title">Recipe Title</label>
@@ -422,15 +502,29 @@ export default function AddRecipe() {
                       name="step"
                       value={step}
                       {...register(`steps.${index}`, {
-                        required: "Step description is required",
-                        minLength: { value: 5, message: "Step must be at least 5 characters" }
+                        required: "is required",
+                        minLength: { 
+                          value: 5, 
+                          message: "must be at least 5 characters" 
+                        },
+                        maxLength: { 
+                          value: 500, 
+                          message: "must not exceed 500 characters" 
+                        },
+                        pattern: {
+                          value: /^[A-Za-z0-9\s.,!?()-]+$/,
+                          message: "contains invalid characters"
+                        }
                       })}
                       onChange={(e) => handleStepChange(index, e.target.value)}
                       placeholder={`Step ${index + 1}`}
+                      className={errors.steps?.[index] ? styles.errorInput : ''}
                     />
-                    {errors.steps?.[index] && 
-                      <span className={styles.error}>{errors.steps[index].message}</span>
-                    }
+                    {errors.steps?.[index] && (
+                      <span className={styles.error}>
+                        {`Step ${index + 1} ${errors.steps[index].message}`}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
