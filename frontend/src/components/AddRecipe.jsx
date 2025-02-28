@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useForm } from "react-hook-form";
+import path from 'path';
 
 export default function AddRecipe() {
   const [steps, setSteps] = useState(["Step 1"]);
@@ -17,6 +18,7 @@ export default function AddRecipe() {
   const [description, setDescription] = useState("");
   const [ingredients, setIngredients] = useState([{ ingredient: "", alternative: "" }]);
   const [image, setImage] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
 
   // Predefined categories
   const availableCategories = [
@@ -34,18 +36,14 @@ export default function AddRecipe() {
     formState: { errors },
     trigger,
     reset
-  } = useForm({
-    defaultValues: {
-      image: null
-    }
-  });
+  } = useForm();
 
   // Modify the form submission handler
   const onSubmit = async (formData) => {
     try {
       // Create FormData object for multipart/form-data
       const submitData = new FormData();
-      
+
       // Append image if it exists
       if (image) {
         submitData.append('image', image);
@@ -86,7 +84,7 @@ export default function AddRecipe() {
         setCategories([]);
         setImage(null);
         reset(); // Reset React Hook Form state
-        
+
         // Reset file input
         const fileInput = document.getElementById('recipe-image');
         if (fileInput) fileInput.value = '';
@@ -111,7 +109,7 @@ export default function AddRecipe() {
         });
       }
       if (errors.categories) toast.error("Please add at least one category");
-      if (errors.image) toast.error(errors.image.message);
+
       return false;
     }
     return true;
@@ -151,31 +149,63 @@ export default function AddRecipe() {
 
     try {
       const response = await axios.get(`http://localhost:5000/api/recipes/${recipeId}`);
-      console.log("Raw API Response:", response); 
+      console.log("Raw API Response:", response);
 
       if (response.data && response.data.data) {
         const recipe = response.data.data;
-        console.log("Recipe data:", recipe); 
+        console.log("Recipe data:", recipe);
 
         setTitle(recipe.title || '');
         setDescription(recipe.description || '');
-        
-        
-        const recipeIngredients = Array.isArray(recipe.ingredients) 
-          ? recipe.ingredients 
+
+        // Handle ingredients
+        const recipeIngredients = Array.isArray(recipe.ingredients)
+          ? recipe.ingredients
           : [{ ingredient: "", alternative: "" }];
         setIngredients(recipeIngredients);
-        
-       
-        const recipeSteps = Array.isArray(recipe.steps) 
-          ? recipe.steps 
+
+        // Handle steps
+        const recipeSteps = Array.isArray(recipe.steps)
+          ? recipe.steps
           : [""];
         setSteps(recipeSteps);
 
-        const recipeCategories = Array.isArray(recipe.categories) 
-          ? recipe.categories 
+        // Handle categories
+        const recipeCategories = Array.isArray(recipe.categories)
+          ? recipe.categories
           : [];
         setCategories(recipeCategories);
+
+        // Handle image
+        if (recipe.image) {
+          try {
+            // Get the clean image path from the backend response
+            const cleanPath = recipe.image.startsWith('uploads/') 
+              ? recipe.image 
+              : `uploads/${path.basename(recipe.image)}`;
+            
+            // Set the image preview URL
+            const imageUrl = `http://localhost:5000/${cleanPath}`;
+            setImagePreviewUrl(imageUrl);
+
+            // Fetch the image as a blob
+            const imageResponse = await fetch(imageUrl);
+            const blob = await imageResponse.blob();
+
+            // Create a File object from the blob
+            const fileName = path.basename(recipe.image);
+            const imageFile = new File([blob], fileName, { type: blob.type });
+            setImage(imageFile);
+
+            console.log("Image successfully loaded:", imageUrl);
+          } catch (imageError) {
+            console.error("Error loading image:", imageError);
+            toast.warning("Recipe found but couldn't load the image");
+          }
+        } else {
+          setImage(null);
+          setImagePreviewUrl(null);
+        }
 
         // After setting the state, verify the values
         console.log("Set title to:", recipe.title);
@@ -183,6 +213,7 @@ export default function AddRecipe() {
         console.log("Set ingredients to:", recipeIngredients);
         console.log("Set steps to:", recipeSteps);
         console.log("Set categories to:", recipeCategories);
+        console.log("Set image to:", recipe.image);
 
         toast.success("Recipe found and loaded successfully!");
       } else {
@@ -220,22 +251,34 @@ export default function AddRecipe() {
       return;
     }
 
+    // Validate fields before updating
+    const isValid = await validateFields();
+    if (!isValid) return;
+
     try {
       const formData = new FormData();
-      
+
       if (image) {
         formData.append('image', image);
       }
 
-      const stepValues = steps.map((_, index) => 
-        document.getElementsByName('step')[index].value
-      ).filter(step => step.trim() !== '');
+      // Get step values directly from the state
+      const stepValues = steps.filter(step => step.trim() !== '');
 
       formData.append('title', title);
       formData.append('description', description);
       formData.append('ingredients', JSON.stringify(ingredients.filter(ing => ing.ingredient.trim() !== '')));
       formData.append('steps', JSON.stringify(stepValues));
       formData.append('categories', JSON.stringify(categories));
+
+      // Debug log
+      console.log('Update data being sent:', {
+        title,
+        description,
+        ingredients: ingredients.filter(ing => ing.ingredient.trim() !== ''),
+        steps: stepValues,
+        categories
+      });
 
       const response = await axios.put(`http://localhost:5000/api/recipes/${recipeId}`, formData, {
         headers: {
@@ -248,7 +291,7 @@ export default function AddRecipe() {
       }
     } catch (error) {
       console.error('Error updating recipe:', error);
-      toast.error(error.response?.data?.error || 'Failed to update recipe. Please try again.');
+      toast.error(error.response?.data?.message || 'Failed to update recipe. Please try again.');
     }
   };
 
@@ -261,7 +304,7 @@ export default function AddRecipe() {
     if (window.confirm("Are you sure you want to delete this recipe?")) {
       try {
         const response = await axios.delete(`http://localhost:5000/api/recipes/${recipeId}`);
-        
+
         if (response.status === 200) {
           toast.success('Recipe deleted successfully!');
           // Reset all form fields
@@ -272,7 +315,7 @@ export default function AddRecipe() {
           setSteps([""]);
           setCategories([]);
           setImage(null);
-          
+
           // Reset file input
           const fileInput = document.getElementById('recipe-image');
           if (fileInput) fileInput.value = '';
@@ -318,7 +361,7 @@ export default function AddRecipe() {
               value={recipeId}
               onChange={(e) => setRecipeId(e.target.value)}
             />
-            <button 
+            <button
               type="button"
               onClick={handleRecipeSearch}
               className={styles.searchBtn}
@@ -329,54 +372,17 @@ export default function AddRecipe() {
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-image">Recipe Image</label>
-              <input 
-                type="file" 
-                id="recipe-image" 
+              <input
+                type="file"
+                id="recipe-image"
                 accept="image/jpeg,image/png,image/jpg"
-                {...register("image", {
-                  validate: {
-                    required: (value) => {
-                      // Make image required only for new recipes, not for updates
-                      if (!recipeId && !image) {
-                        return "Please select an image for the recipe";
-                      }
-                      return true;
-                    },
-                    checkFileType: (value) => {
-                      if (value?.length > 0) {
-                        const file = value[0];
-                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-                        if (!validTypes.includes(file.type)) {
-                          return 'Please upload a valid image file (JPEG, PNG, or JPG)';
-                        }
-                      }
-                      return true;
-                    },
-                    checkFileSize: (value) => {
-                      if (value?.length > 0) {
-                        const file = value[0];
-                        if (file.size > 5 * 1024 * 1024) {
-                          return 'Image size should be less than 5MB';
-                        }
-                      }
-                      return true;
-                    }
-                  }
-                })}
-                onChange={(e) => {
-                  handleImageChange(e);
-                  register("image").onChange(e); // Ensure React Hook Form knows about the change
-                }}
-                className={errors.image ? styles.errorInput : ''}
+                onChange={handleImageChange}
               />
-              {errors.image && (
-                <span className={styles.error}>{errors.image.message}</span>
-              )}
-              {image && (
+              {(image || imagePreviewUrl) && (
                 <div className={styles.imagePreview}>
-                  <img 
-                    src={URL.createObjectURL(image)} 
-                    alt="Recipe preview" 
+                  <img
+                    src={imagePreviewUrl || (image ? URL.createObjectURL(image) : '')}
+                    alt="Recipe preview"
                     style={{ maxWidth: '200px', marginTop: '10px' }}
                   />
                 </div>
@@ -384,9 +390,9 @@ export default function AddRecipe() {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-title">Recipe Title</label>
-              <input 
-                type="text" 
-                id="recipe-title" 
+              <input
+                type="text"
+                id="recipe-title"
                 value={title}
                 {...register("title", {
                   required: "Recipe title is required",
@@ -399,7 +405,7 @@ export default function AddRecipe() {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="recipe-description">Recipe Short Description</label>
-              <textarea 
+              <textarea
                 id="recipe-description"
                 value={description}
                 {...register("description", {
@@ -416,26 +422,26 @@ export default function AddRecipe() {
               <label htmlFor="recipe-ingredients">Recipe Ingredients</label>
               {ingredients.map((ing, index) => (
                 <div className={styles.ingredients} key={index}>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={ing.ingredient}
                     {...register(`ingredients.${index}.ingredient`, {
                       required: "Ingredient name is required",
                       minLength: { value: 2, message: "Ingredient must be at least 2 characters" }
                     })}
                     onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
-                    placeholder="Ingredient" 
+                    placeholder="Ingredient"
                   />
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={ing.alternative}
                     {...register(`ingredients.${index}.alternative`, {
                       minLength: { value: 2, message: "Alternative must be at least 2 characters" }
                     })}
                     onChange={(e) => handleIngredientChange(index, 'alternative', e.target.value)}
-                    placeholder="Ingredient Alternative" 
+                    placeholder="Ingredient Alternative"
                   />
-                  {errors.ingredients?.[index]?.ingredient && 
+                  {errors.ingredients?.[index]?.ingredient &&
                     <span className={styles.error}>{errors.ingredients[index].ingredient.message}</span>
                   }
                 </div>
@@ -465,14 +471,14 @@ export default function AddRecipe() {
                       </option>
                     ))}
                   </select>
-                  <button 
-                    type="button" 
-                    className={styles.addBtn} 
+                  <button
+                    type="button"
+                    className={styles.addBtn}
                     onClick={addCategory}
                   >
                     Add Category
                   </button>
-                  {errors.selectedCategory && 
+                  {errors.selectedCategory &&
                     <span className={styles.error}>{errors.selectedCategory.message}</span>
                   }
                 </div>
@@ -497,19 +503,19 @@ export default function AddRecipe() {
               <div className={styles.steps}>
                 {steps.map((step, index) => (
                   <div key={index}>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="step"
                       value={step}
                       {...register(`steps.${index}`, {
                         required: "is required",
-                        minLength: { 
-                          value: 5, 
-                          message: "must be at least 5 characters" 
+                        minLength: {
+                          value: 5,
+                          message: "must be at least 5 characters"
                         },
-                        maxLength: { 
-                          value: 500, 
-                          message: "must not exceed 500 characters" 
+                        maxLength: {
+                          value: 500,
+                          message: "must not exceed 500 characters"
                         },
                         pattern: {
                           value: /^[A-Za-z0-9\s.,!?()-]+$/,
@@ -534,16 +540,16 @@ export default function AddRecipe() {
             </div>
             <div className={styles.formGroup}>
               <button type="submit" className={styles.submitBtn}>Add Recipe</button>
-              <button 
-                type="button" 
-                className={styles.updateBtn} 
+              <button
+                type="button"
+                className={styles.updateBtn}
                 onClick={handleUpdate}
               >
                 Update Recipe
               </button>
-              <button 
-                type="button" 
-                className={styles.deleteBtn} 
+              <button
+                type="button"
+                className={styles.deleteBtn}
                 onClick={handleDelete}
               >
                 Delete Recipe
@@ -553,7 +559,7 @@ export default function AddRecipe() {
         </div>
       </div>
       <Footer/>
-      <ToastContainer 
+      <ToastContainer
         position="top-center"
         autoClose={3000}
         hideProgressBar={false}

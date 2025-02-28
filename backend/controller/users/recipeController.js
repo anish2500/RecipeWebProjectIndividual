@@ -162,11 +162,10 @@ const deleteById = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete recipe' });
     }
 };
-
 const searchRecipes = async (req, res) => {
     try {
         const { query } = req.query;
-        
+
         if (!query || query.trim() === '') {
             return res.status(200).json({
                 data: [],
@@ -205,10 +204,15 @@ const searchRecipes = async (req, res) => {
             const recipeData = recipe.toJSON();
             if (recipeData.image) {
                 // Ensure the image path is properly formatted
-                const cleanPath = recipeData.image.startsWith('uploads/') 
-                    ? recipeData.image 
+                const cleanPath = recipeData.image.startsWith('uploads/')
+                    ? recipeData.image
                     : `uploads/${path.basename(recipeData.image)}`;
                 recipeData.image = verifyImageExists(cleanPath);
+
+                // Debugging: Log the image path
+                if (!recipeData.image) {
+                    console.log(`Image not found for recipe ${recipeData.id}: ${cleanPath}`);
+                }
             }
             return recipeData;
         });
@@ -226,5 +230,6 @@ const searchRecipes = async (req, res) => {
         });
     }
 };
+
 
 export const recipeController = { getAll, create, update, getById, deleteById, searchRecipes };
